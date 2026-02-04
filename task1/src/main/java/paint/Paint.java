@@ -22,7 +22,7 @@ public class Paint extends Application {
     private void initWindow(Stage stage) {
         stage.setTitle("Пыинт");
         stage.setScene(new Scene(ui, stageWidth, stageHeight));
-        stage.setResizable(false);
+        stage.setResizable(true);
         stage.show();
     }
 

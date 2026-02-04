@@ -16,11 +16,15 @@ public class Tools extends ToolBar{
     private Button new_b;
     private Button open;
     private Button save;
+
     private Stage stage;
 
-    public Tools(Stage stage) {
+    private DrawPanel drawPanel;
+
+    public Tools(Stage stage, DrawPanel drawPanel) {
         super();
         this.stage = stage;
+        this.drawPanel = drawPanel;
 
         new_b = newButtonWithImage("new.png");
 
@@ -28,7 +32,7 @@ public class Tools extends ToolBar{
         open.setOnAction(this::handleOpen);
 
         save = newButtonWithImage("save.png");
-        this.getItems().addAll(new_b, open, save, new Separator());
+        getItems().addAll(new_b, open, save, new Separator());
     }
 
     private Button newButtonWithImage(String source) {
@@ -49,15 +53,22 @@ public class Tools extends ToolBar{
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp"),
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
 
         File selectedFile = fileChooser.showOpenDialog(stage);
 
-        if (selectedFile != null) {
-            String imagePath = selectedFile.getAbsolutePath();
-            System.out.println("Selected: " + imagePath);
+        if (selectedFile != null && drawPanel != null) {
+            try {
+                Image image = new Image("file:" + selectedFile.getAbsolutePath());
+
+                drawPanel.loadImage(image);
+
+                System.out.println("Loaded image: " + selectedFile.getAbsolutePath());
+            } catch (Exception e) {
+                System.err.println("Error loading image: " + e.getMessage());
+            }
         }
     }
 }
