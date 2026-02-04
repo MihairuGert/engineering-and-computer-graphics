@@ -12,16 +12,20 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-public class Tools extends ToolBar{
+public class Menu extends ToolBar{
     private Button new_b;
     private Button open;
     private Button save;
+
+    private Button line;
+    private ImageView inactiveLineImg;
+    private ImageView activeLineImg;
 
     private Stage stage;
 
     private DrawPanel drawPanel;
 
-    public Tools(Stage stage, DrawPanel drawPanel) {
+    public Menu(Stage stage, DrawPanel drawPanel) {
         super();
         this.stage = stage;
         this.drawPanel = drawPanel;
@@ -32,17 +36,26 @@ public class Tools extends ToolBar{
         open.setOnAction(this::handleOpen);
 
         save = newButtonWithImage("save.png");
-        getItems().addAll(new_b, open, save, new Separator());
+
+        line = newButtonWithImage("line.png");
+        line.setOnAction(this::handleLine);
+        activeLineImg = createIcon("line_active.png");
+
+        getItems().addAll(new_b, open, save, new Separator(), line);
+    }
+
+    private ImageView createIcon(String source) {
+        ImageView image = new ImageView(source);
+        image.setFitHeight(20);
+        image.setFitWidth(20);
+        return image;
     }
 
     private Button newButtonWithImage(String source) {
-        Image icon = new Image(source);
-        ImageView iconView = new ImageView(icon);
-        iconView.setFitHeight(20);
-        iconView.setFitWidth(20);
+        inactiveLineImg = createIcon(source);
 
         Button button = new Button();
-        button.setGraphic(iconView);
+        button.setGraphic(inactiveLineImg);
         button.setPadding(Insets.EMPTY);
         button.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
 
@@ -53,7 +66,7 @@ public class Tools extends ToolBar{
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp"),
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp"),
                 new FileChooser.ExtensionFilter("All Files", "*.*")
         );
 
@@ -70,5 +83,14 @@ public class Tools extends ToolBar{
                 System.err.println("Error loading image: " + e.getMessage());
             }
         }
+    }
+
+    private void handleLine(ActionEvent event) {
+        drawPanel.setCurrentTool(ToolMode.LINE);
+        line.setGraphic(activeLineImg);
+    }
+
+    public void setLineInactive() {
+        line.setGraphic(inactiveLineImg);
     }
 }

@@ -7,13 +7,13 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class UI extends BorderPane {
-    private Tools tools;
+    private Menu menu;
     private DrawPanel drawPanel;
 
     public UI(Stage stage) {
         super();
-        drawPanel = new DrawPanel(100, 100);
-        tools = new Tools(stage, drawPanel);
+        drawPanel = new DrawPanel(1000, 1000);
+        menu = new Menu(stage, drawPanel);
 
         StackPane centerPane = new StackPane(drawPanel);
         centerPane.setStyle("-fx-background-color: lightgray;");
@@ -24,6 +24,6 @@ public class UI extends BorderPane {
         scrollPane.setPadding(Insets.EMPTY);
 
         setCenter(scrollPane);
-        setTop(tools);
+        setTop(menu);
     }
 }
