@@ -18,6 +18,7 @@ public class Menu extends ToolBar{
     private Button save;
 
     private Button line;
+    private boolean isLineClicked = false;
     private ImageView inactiveLineImg;
     private ImageView activeLineImg;
 
@@ -86,11 +87,25 @@ public class Menu extends ToolBar{
     }
 
     private void handleLine(ActionEvent event) {
+        if (!isLineClicked) {
+            setLineActive();
+            return;
+        }
+        setLineInactive();
+    }
+
+    private void setLineActive() {
         drawPanel.setCurrentTool(ToolMode.LINE);
         line.setGraphic(activeLineImg);
+        isLineClicked = true;
     }
 
     public void setLineInactive() {
+        if (!isLineClicked) {
+            return;
+        }
         line.setGraphic(inactiveLineImg);
+        drawPanel.setCurrentTool(ToolMode.NONE);
+        isLineClicked = false;
     }
 }

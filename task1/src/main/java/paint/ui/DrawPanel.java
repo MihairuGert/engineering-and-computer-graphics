@@ -6,6 +6,10 @@ import javafx.scene.paint.Color;
 public class DrawPanel extends ImageView {
     private WritableImage image;
 
+    public ToolMode getCurrentTool() {
+        return currentTool;
+    }
+
     private ToolMode currentTool;
 
     public DrawPanel(int width, int height) {
@@ -42,7 +46,6 @@ public class DrawPanel extends ImageView {
         setImage(image);
     }
 
-    private boolean isDrawingLine = false;
     private double lastX = -1;
     private double lastY = -1;
 
@@ -51,18 +54,15 @@ public class DrawPanel extends ImageView {
             switch (currentTool) {
                 case NONE -> {}
                 case LINE -> {
-                    if (isDrawingLine) {
+                    if (lastX != -1 && lastY != -1) {
                         drawLine((int) lastX,(int) lastY,(int) event.getX(),(int) event.getY());
-                        currentTool = ToolMode.NONE;
-                        lastX = -1;
-                        lastY = -1;
-                        isDrawingLine = false;
+                        lastX = event.getX();
+                        lastY = event.getY();
                         break;
                     }
 
                     lastX = event.getX();
                     lastY = event.getY();
-                    isDrawingLine = true;
                 }
             }
         });
@@ -71,14 +71,29 @@ public class DrawPanel extends ImageView {
 
     private void drawLine(int x0, int y0, int x1, int y1) {
         drawLineBresenham(x0, y0, x1, y1);
+        //        int dx = x1 - x0;
+//        int dy = y1 - y0;
+//
+//        if (dy > 0)
+//            if (dx > 0)
+//                if (dx >= dy)
+//                    drawLineBresenham(x0, y0, x1, y1);
+//                else
+//                    drawLineBresenham(y0, x0, y1, x1);
+//            else
+//                if (dx >= dy)
+//                    drawLineBresenham(x0, y0, x1, y1);
+//                else
+//                    drawLineBresenham(y0, x0, y1, x1);
+
     }
 
     private void drawLineBresenham(int x0, int y0, int x1, int y1) {
         int x = x0;
         int y = y0;
 
-        int dx = x1 - x;
-        int dy = y1 - y;
+        int dx = x1 - x0;
+        int dy = y1 - y0;
 
         int err = -dx;
 
