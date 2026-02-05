@@ -17,10 +17,8 @@ public class Menu extends ToolBar{
     private Button open;
     private Button save;
 
-    private Button line;
-    private boolean isLineClicked = false;
-    private ImageView inactiveLineImg;
-    private ImageView activeLineImg;
+    private Line line;
+    private Pencil pencil;
 
     private Stage stage;
 
@@ -38,25 +36,26 @@ public class Menu extends ToolBar{
 
         save = newButtonWithImage("save.png");
 
-        line = newButtonWithImage("line.png");
-        line.setOnAction(this::handleLine);
-        activeLineImg = createIcon("line_active.png");
+        line = new Line("line_active.png", "line.png");
+        line.button.setOnAction(this::handleLine);
 
-        getItems().addAll(new_b, open, save, new Separator(), line);
+        pencil = new Pencil("pencil_active.png", "pencil.png");
+        pencil.button.setOnAction(this::handlePencil);
+
+        getItems().addAll(new_b, open, save, new Separator(), pencil.button, line.button);
     }
 
-    private ImageView createIcon(String source) {
+    public static ImageView createIcon(String source) {
         ImageView image = new ImageView(source);
         image.setFitHeight(20);
         image.setFitWidth(20);
         return image;
     }
 
-    private Button newButtonWithImage(String source) {
-        inactiveLineImg = createIcon(source);
-
+    public static Button newButtonWithImage(String source) {
+        ImageView img = createIcon(source);
         Button button = new Button();
-        button.setGraphic(inactiveLineImg);
+        button.setGraphic(img);
         button.setPadding(Insets.EMPTY);
         button.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
 
@@ -87,25 +86,22 @@ public class Menu extends ToolBar{
     }
 
     private void handleLine(ActionEvent event) {
-        if (!isLineClicked) {
-            setLineActive();
+        if (!line.isClicked()) {
+            line.setActive();
+            drawPanel.setCurrentTool(ToolMode.LINE);
             return;
         }
-        setLineInactive();
-    }
-
-    private void setLineActive() {
-        drawPanel.setCurrentTool(ToolMode.LINE);
-        line.setGraphic(activeLineImg);
-        isLineClicked = true;
-    }
-
-    public void setLineInactive() {
-        if (!isLineClicked) {
-            return;
-        }
-        line.setGraphic(inactiveLineImg);
+        line.setInactive();
         drawPanel.setCurrentTool(ToolMode.NONE);
-        isLineClicked = false;
+    }
+
+    private void handlePencil(ActionEvent event) {
+        if (!pencil.isClicked()) {
+            pencil.setActive();
+            drawPanel.setCurrentTool(ToolMode.PENCIL);
+            return;
+        }
+        pencil.setInactive();
+        drawPanel.setCurrentTool(ToolMode.NONE);
     }
 }

@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 
 public class DrawPanel extends ImageView {
     private WritableImage image;
+    private PixelWriter writer;
 
     public ToolMode getCurrentTool() {
         return currentTool;
@@ -16,14 +17,14 @@ public class DrawPanel extends ImageView {
         super();
 
         image = new WritableImage(width, height);
-        var pixelWriter = image.getPixelWriter();
+        writer = image.getPixelWriter();
 
         setImage(image);
         currentTool = ToolMode.NONE;
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                image.getPixelWriter().setColor(x, y, Color.WHITE);
+                writer.setColor(x, y, Color.WHITE);
             }
         }
 
@@ -36,10 +37,11 @@ public class DrawPanel extends ImageView {
 
     public void loadImage(Image newImage) {
         image = new WritableImage((int)newImage.getWidth(), (int)newImage.getHeight());
+        writer = image.getPixelWriter();
 
         for (int x = 0; x < (int)newImage.getWidth(); x++) {
             for (int y = 0; y < (int)newImage.getHeight(); y++) {
-                image.getPixelWriter().setColor(x, y, newImage.getPixelReader().getColor(x, y));
+                writer.setColor(x, y, newImage.getPixelReader().getColor(x, y));
             }
         }
 
@@ -63,6 +65,23 @@ public class DrawPanel extends ImageView {
 
                     lastX = event.getX();
                     lastY = event.getY();
+                }
+                case PENCIL -> {
+                    if (isInBounds(event.getX(), event.getY()))
+                        writer.setColor((int) event.getX(),(int) event.getY(), Color.RED);
+                }
+            }
+        });
+        setOnMouseDragged(event -> {
+            switch (currentTool) {
+                case NONE -> {}
+                case PENCIL -> {
+                    for (int i = -5; i < 5; i++) {
+                        for (int j = -4; j < 4; j++) {
+                            if (isInBounds(event.getX() + i, event.getY() + j))
+                                writer.setColor((int) event.getX() + i,(int) event.getY() + j, Color.RED);
+                        }
+                    }
                 }
             }
         });
@@ -106,5 +125,10 @@ public class DrawPanel extends ImageView {
             }
             image.getPixelWriter().setColor(x, y, Color.RED);
         }
+    }
+
+    private boolean isInBounds(double x, double y) {
+        return x >= 0 && x <= image.getWidth()
+                && y >= 0 && y <= image.getHeight();
     }
 }
