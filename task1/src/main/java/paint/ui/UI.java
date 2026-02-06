@@ -12,8 +12,12 @@ public class UI extends BorderPane {
 
     public UI(Stage stage) {
         super();
-        drawPanel = new DrawPanel(1000, 1000);
-        menu = new Menu(stage, drawPanel);
+
+        menu = new Menu(stage, null);
+
+        drawPanel = new DrawPanel(1000, 1000, menu.getSettings());
+
+        menu.setDrawPanel(drawPanel);
 
         StackPane centerPane = new StackPane(drawPanel);
         centerPane.setStyle("-fx-background-color: lightgray;");

@@ -35,4 +35,3 @@ public class Clickable {
         button = newButtonWithImage(inactiveSource);
     }
 }
-

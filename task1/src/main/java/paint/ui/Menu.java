@@ -12,22 +12,25 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-public class Menu extends ToolBar{
+public class Menu extends ToolBar {
     private Button new_b;
     private Button open;
     private Button save;
+    private Button settingsBtn;
 
     private Line line;
     private Pencil pencil;
 
     private Stage stage;
-
     private DrawPanel drawPanel;
+    private Settings settings;
+    private SettingsWindow settingsWindow;
 
     public Menu(Stage stage, DrawPanel drawPanel) {
         super();
         this.stage = stage;
         this.drawPanel = drawPanel;
+        this.settings = new Settings();
 
         new_b = newButtonWithImage("new.png");
 
@@ -42,7 +45,15 @@ public class Menu extends ToolBar{
         pencil = new Pencil("pencil_active.png", "pencil.png");
         pencil.button.setOnAction(this::handlePencil);
 
-        getItems().addAll(new_b, open, save, new Separator(), pencil.button, line.button);
+        settingsBtn = newButtonWithImage("settings.png");
+        settingsBtn.setOnAction(this::handleSettings);
+
+        if (drawPanel != null) {
+            settingsWindow = new SettingsWindow(settings, drawPanel);
+        }
+
+        getItems().addAll(settingsBtn, new Separator(), new_b, open, save, new Separator(),
+                pencil.button, line.button, new Separator());
     }
 
     public static ImageView createIcon(String source) {
@@ -103,5 +114,20 @@ public class Menu extends ToolBar{
         }
         pencil.setInactive();
         drawPanel.setCurrentTool(ToolMode.NONE);
+    }
+
+    private void handleSettings(ActionEvent event) {
+        settingsWindow.showSettings();
+    }
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setDrawPanel(DrawPanel drawPanel) {
+        this.drawPanel = drawPanel;
+        if (drawPanel != null && settingsWindow == null) {
+            settingsWindow = new SettingsWindow(settings, drawPanel);
+        }
     }
 }

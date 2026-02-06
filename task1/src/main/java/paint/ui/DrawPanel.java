@@ -12,9 +12,11 @@ public class DrawPanel extends ImageView {
     }
 
     private ToolMode currentTool;
+    private final Settings settings;
 
-    public DrawPanel(int width, int height) {
+    public DrawPanel(int width, int height, Settings settings) {
         super();
+        this.settings = settings;
 
         image = new WritableImage(width, height);
         writer = image.getPixelWriter();
@@ -57,7 +59,8 @@ public class DrawPanel extends ImageView {
                 case NONE -> {}
                 case LINE -> {
                     if (lastX != -1 && lastY != -1) {
-                        drawLine((int) lastX,(int) lastY,(int) event.getX(),(int) event.getY());
+                        drawLine((int) lastX,(int) lastY,(int) event.getX(),(int) event.getY(),
+                                settings.getCurrentColor(), settings.getLineThickness());
                         lastX = event.getX();
                         lastY = event.getY();
                         break;
@@ -67,8 +70,10 @@ public class DrawPanel extends ImageView {
                     lastY = event.getY();
                 }
                 case PENCIL -> {
-                    if (isInBounds(event.getX(), event.getY()))
-                        writer.setColor((int) event.getX(),(int) event.getY(), Color.RED);
+                    if (isInBounds(event.getX(), event.getY())) {
+                        drawPoint((int) event.getX(), (int) event.getY(),
+                                settings.getCurrentColor(), settings.getBrushSize());
+                    }
                 }
             }
         });
@@ -76,59 +81,37 @@ public class DrawPanel extends ImageView {
             switch (currentTool) {
                 case NONE -> {}
                 case PENCIL -> {
-                    for (int i = -5; i < 5; i++) {
-                        for (int j = -4; j < 4; j++) {
-                            if (isInBounds(event.getX() + i, event.getY() + j))
-                                writer.setColor((int) event.getX() + i,(int) event.getY() + j, Color.RED);
-                        }
-                    }
+                    drawPoint((int) event.getX(), (int) event.getY(),
+                            settings.getCurrentColor(), settings.getBrushSize());
                 }
             }
         });
+    }
+
+    private void drawLine(int x0, int y0, int x1, int y1, Color color, int thickness) {
+        drawLineBresenham(x0, y0, x1, y1, color, thickness);
+    }
+
+    private void drawLineBresenham(int x0, int y0, int x1, int y1, Color color, int thickness) {
 
     }
 
-    private void drawLine(int x0, int y0, int x1, int y1) {
-        drawLineBresenham(x0, y0, x1, y1);
-        //        int dx = x1 - x0;
-//        int dy = y1 - y0;
-//
-//        if (dy > 0)
-//            if (dx > 0)
-//                if (dx >= dy)
-//                    drawLineBresenham(x0, y0, x1, y1);
-//                else
-//                    drawLineBresenham(y0, x0, y1, x1);
-//            else
-//                if (dx >= dy)
-//                    drawLineBresenham(x0, y0, x1, y1);
-//                else
-//                    drawLineBresenham(y0, x0, y1, x1);
-
-    }
-
-    private void drawLineBresenham(int x0, int y0, int x1, int y1) {
-        int x = x0;
-        int y = y0;
-
-        int dx = x1 - x0;
-        int dy = y1 - y0;
-
-        int err = -dx;
-
-        for (int i = 0; i < dx; i++) {
-            x++;
-            err += 2*dy;
-            if (err > 0) {
-                err -= 2*dx;
-                y++;
+    private void drawPoint(int centerX, int centerY, Color color, int radius) {
+        int r = radius / 2;
+        for (int x = -r; x <= r; x++) {
+            for (int y = -r; y <= r; y++) {
+                if (x*x + y*y <= r*r) {
+                    int drawX = centerX + x;
+                    int drawY = centerY + y;
+                    if (isInBounds(drawX, drawY)) {
+                        writer.setColor(drawX, drawY, color);
+                    }
+                }
             }
-            image.getPixelWriter().setColor(x, y, Color.RED);
         }
     }
 
     private boolean isInBounds(double x, double y) {
-        return x >= 0 && x <= image.getWidth()
-                && y >= 0 && y <= image.getHeight();
+        return x >= 0 && x < image.getWidth() && y >= 0 && y < image.getHeight();
     }
 }

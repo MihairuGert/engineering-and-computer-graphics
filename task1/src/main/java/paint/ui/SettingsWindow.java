@@ -13,7 +13,7 @@ public class SettingsWindow extends Stage {
         this.settings = settings;
 
         initStyle(StageStyle.UTILITY);
-        setTitle("Paint Settings");
+        setTitle("Ныстройки пыинта");
         setResizable(false);
 
         settingsToolbar = new SettingsToolbar(settings, drawPanel);
