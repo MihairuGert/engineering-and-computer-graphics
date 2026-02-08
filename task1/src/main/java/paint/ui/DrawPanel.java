@@ -63,6 +63,10 @@ public class DrawPanel extends ImageView {
         setImage(image);
     }
 
+    public WritableImage getImg() {
+        return image;
+    }
+
     private double lastX = -1;
     private double lastY = -1;
 

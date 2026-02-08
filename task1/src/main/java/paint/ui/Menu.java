@@ -1,10 +1,12 @@
 package paint.ui;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import paint.ui.clickable.Clickable;
@@ -13,7 +15,10 @@ import paint.ui.clickable.Pencil;
 import paint.ui.windows.NewWindow;
 import paint.ui.windows.SettingsWindow;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 public class Menu extends ToolBar {
     private Clickable new_b;
@@ -115,7 +120,76 @@ public class Menu extends ToolBar {
     }
 
     void handleSave(ActionEvent event) {
+        if (drawPanel == null || drawPanel.getImage() == null) {
+            UI.showErr("Ошибка сохранения", "Нет изображения для сохранения.");
+            return;
+        }
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Сохранить изображение");
+
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("PNG Image (*.png)", "*.png"),
+                new FileChooser.ExtensionFilter("JPEG Image (*.jpg)", "*.jpg"),
+                new FileChooser.ExtensionFilter("BMP Image (*.bmp)", "*.bmp"),
+                new FileChooser.ExtensionFilter("GIF Image (*.gif)", "*.gif")
+        );
+
+        fileChooser.setInitialFileName("шедеврдостойныйТретьяковскойГалерее.png");
+
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            try {
+                FileChooser.ExtensionFilter selectedFilter = fileChooser.getSelectedExtensionFilter();
+                String extension = "";
+
+                String description = selectedFilter.getDescription();
+                if (description.contains("PNG")) {
+                    extension = "png";
+                } else if (description.contains("JPEG") || description.contains("JPG")) {
+                    extension = "jpg";
+                } else if (description.contains("BMP")) {
+                    extension = "bmp";
+                } else if (description.contains("GIF")) {
+                    extension = "gif";
+                }
+
+                WritableImage writableImage = drawPanel.getImg();
+
+                saveImage(writableImage, file, extension);
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Сохранение успешно!");
+                alert.setHeaderText(null);
+                alert.setContentText("Изображение сохранено в файл:\n" + file.getAbsolutePath());
+                alert.showAndWait();
+
+            } catch (Exception e) {
+                UI.showErr("Ошибка сохранения", "Не удалось сохранить изображение: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void saveImage(WritableImage writableImage, File file, String format) throws IOException {
+        BufferedImage bImage = SwingFXUtils.fromFXImage(writableImage, null);
+
+        if (format.equalsIgnoreCase("png")) {
+            ImageIO.write(bImage, "png", file);
+        } else if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg")) {
+            BufferedImage rgbImage = new BufferedImage(
+                    bImage.getWidth(),
+                    bImage.getHeight(),
+                    BufferedImage.TYPE_INT_RGB
+            );
+            rgbImage.createGraphics().drawImage(bImage, 0, 0, null);
+            ImageIO.write(rgbImage, "jpg", file);
+        } else if (format.equalsIgnoreCase("bmp")) {
+            ImageIO.write(bImage, "bmp", file);
+        } else if (format.equalsIgnoreCase("gif")) {
+            ImageIO.write(bImage, "gif", file);
+        }
     }
 
     void handleLine(ActionEvent event) {

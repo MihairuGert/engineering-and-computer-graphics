@@ -42,17 +42,13 @@ public class UI extends BorderPane {
 
         Menu fileMenu = new Menu("File");
         MenuItem newItem = new MenuItem("New");
-        newItem.setOnAction(e -> {
-            toolbar.handleNew(e);
-        });
+        newItem.setOnAction(e -> toolbar.handleNew(e));
 
         MenuItem openItem = new MenuItem("Open");
         openItem.setOnAction(e -> toolbar.handleOpen(e));
 
         MenuItem saveItem = new MenuItem("Save");
-        saveItem.setOnAction(e -> {
-
-        });
+        saveItem.setOnAction(e -> toolbar.handleSave(e));
 
         MenuItem exitItem = new MenuItem("Exit");
         exitItem.setOnAction(e -> stage.close());
