@@ -73,7 +73,7 @@ public class Menu extends ToolBar {
         return button;
     }
 
-    private void handleOpen(ActionEvent event) {
+    void handleOpen(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.getExtensionFilters().addAll(
@@ -96,7 +96,7 @@ public class Menu extends ToolBar {
         }
     }
 
-    private void handleLine(ActionEvent event) {
+    void handleLine(ActionEvent event) {
         if (!line.isClicked()) {
             line.setActive();
             drawPanel.setCurrentTool(ToolMode.LINE);
@@ -106,7 +106,7 @@ public class Menu extends ToolBar {
         drawPanel.setCurrentTool(ToolMode.NONE);
     }
 
-    private void handlePencil(ActionEvent event) {
+    void handlePencil(ActionEvent event) {
         if (!pencil.isClicked()) {
             pencil.setActive();
             drawPanel.setCurrentTool(ToolMode.PENCIL);
@@ -116,7 +116,7 @@ public class Menu extends ToolBar {
         drawPanel.setCurrentTool(ToolMode.NONE);
     }
 
-    private void handleSettings(ActionEvent event) {
+    void handleSettings(ActionEvent event) {
         settingsWindow.showSettings();
     }
 

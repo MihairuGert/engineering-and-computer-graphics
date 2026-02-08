@@ -23,6 +23,8 @@ public class Paint extends Application {
         stage.setTitle("Пыинт");
         stage.setScene(new Scene(ui, stageWidth, stageHeight));
         stage.setResizable(true);
+        stage.setMinHeight(480);
+        stage.setMinWidth(640);
         stage.show();
     }
 
