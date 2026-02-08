@@ -37,12 +37,17 @@ public class DrawPanel extends ImageView {
         currentTool = mode;
     }
 
-    public void newImage() {
+    public void newImage(int width, int height) {
+        image = new WritableImage(width, height);
+        writer = image.getPixelWriter();
+
         for (int x = 0; x < (int)image.getWidth(); x++) {
             for (int y = 0; y < (int)image.getHeight(); y++) {
                 writer.setColor(x, y, Color.WHITE);
             }
         }
+
+        setImage(image);
     }
 
     public void loadImage(Image newImage) {

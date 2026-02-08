@@ -1,11 +1,8 @@
 package paint.ui;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -46,7 +43,7 @@ public class UI extends BorderPane {
         Menu fileMenu = new Menu("File");
         MenuItem newItem = new MenuItem("New");
         newItem.setOnAction(e -> {
-            drawPanel.newImage();
+            toolbar.handleNew(e);
         });
 
         MenuItem openItem = new MenuItem("Open");
@@ -84,5 +81,14 @@ public class UI extends BorderPane {
         helpMenu.getItems().add(aboutItem);
 
         menuBar.getMenus().addAll(fileMenu, toolsMenu, settingsMenu, helpMenu);
+    }
+
+    public static void showErr(String msgHeader, String msgContent) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Ошибка!");
+        alert.setHeaderText(msgHeader);
+        alert.setContentText(msgContent);
+
+        alert.showAndWait();
     }
 }

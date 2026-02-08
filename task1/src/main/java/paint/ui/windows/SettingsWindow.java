@@ -11,7 +11,7 @@ public class SettingsWindow extends Stage {
     private SettingsToolbar settingsToolbar;
     private Settings settings;
 
-    public SettingsWindow(Settings settings, DrawPanel drawPanel, Stage owner) {
+    public SettingsWindow(Stage owner, Settings settings, DrawPanel drawPanel) {
         initOwner(owner);
         this.settings = settings;
 

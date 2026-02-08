@@ -160,8 +160,8 @@ public class Menu extends ToolBar {
     public void setDrawPanel(DrawPanel drawPanel) {
         this.drawPanel = drawPanel;
         if (drawPanel != null && settingsWindow == null && newWindow == null) {
-            settingsWindow = new SettingsWindow(settings, drawPanel, stage);
-            newWindow = new NewWindow(stage);
+            settingsWindow = new SettingsWindow(stage, settings, drawPanel);
+            newWindow = new NewWindow(stage, drawPanel);
         }
     }
 }
