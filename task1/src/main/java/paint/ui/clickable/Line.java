@@ -1,8 +1,8 @@
-package paint.ui;
+package paint.ui.clickable;
 
 public class Line extends Clickable{
 
-    Line(String activeSource, String inactiveSource) {
+    public Line(String activeSource, String inactiveSource) {
         super(activeSource, inactiveSource);
     }
 }

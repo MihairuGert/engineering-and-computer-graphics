@@ -2,21 +2,25 @@ package paint.ui;
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import paint.ui.clickable.Clickable;
+import paint.ui.clickable.Line;
+import paint.ui.clickable.Pencil;
+import paint.ui.windows.NewWindow;
+import paint.ui.windows.SettingsWindow;
 
 import java.io.File;
 
 public class Menu extends ToolBar {
-    private Button new_b;
-    private Button open;
-    private Button save;
-    private Button settingsBtn;
+    private Clickable new_b;
+    private Clickable open;
+    private Clickable save;
+    private Clickable settingsBtn;
+    private Clickable aboutBtn;
 
     private Line line;
     private Pencil pencil;
@@ -26,34 +30,44 @@ public class Menu extends ToolBar {
     private Settings settings;
     private SettingsWindow settingsWindow;
 
+    private NewWindow newWindow;
+
     public Menu(Stage stage, DrawPanel drawPanel) {
         super();
         this.stage = stage;
         this.drawPanel = drawPanel;
         this.settings = new Settings();
 
-        new_b = newButtonWithImage("new.png");
+        new_b = new Clickable("new.png");
+        new_b.button.setOnAction(this::handleNew);
+        new_b.setTip("Отчищает изображение");
 
-        open = newButtonWithImage("open.png");
-        open.setOnAction(this::handleOpen);
+        open = new Clickable("open.png");
+        open.button.setOnAction(this::handleOpen);
+        open.setTip("Open");
 
-        save = newButtonWithImage("save.png");
+        save = new Clickable("save.png");
+        save.button.setOnAction(this::handleSave);
+        save.setTip("Save");
 
         line = new Line("line_active.png", "line.png");
         line.button.setOnAction(this::handleLine);
+        line.setTip("Line");
 
         pencil = new Pencil("pencil_active.png", "pencil.png");
         pencil.button.setOnAction(this::handlePencil);
+        pencil.setTip("Pencil");
 
-        settingsBtn = newButtonWithImage("settings.png");
-        settingsBtn.setOnAction(this::handleSettings);
+        settingsBtn = new Clickable("settings.png");
+        settingsBtn.button.setOnAction(this::handleSettings);
+        settingsBtn.setTip("Settings");
 
-        if (drawPanel != null) {
-            settingsWindow = new SettingsWindow(settings, drawPanel);
-        }
+        aboutBtn = new Clickable("about.png");
+        aboutBtn.button.setOnAction(this::handleAbout);
+        aboutBtn.setTip("About");
 
-        getItems().addAll(settingsBtn, new Separator(), new_b, open, save, new Separator(),
-                pencil.button, line.button, new Separator());
+        getItems().addAll(aboutBtn.button, settingsBtn.button, new Separator(), new_b.button, open.button, save.button, new Separator(),
+                pencil.button, line.button);
     }
 
     public static ImageView createIcon(String source) {
@@ -71,6 +85,10 @@ public class Menu extends ToolBar {
         button.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
 
         return button;
+    }
+
+    void handleNew(ActionEvent event) {
+        newWindow.showNew();
     }
 
     void handleOpen(ActionEvent event) {
@@ -94,6 +112,10 @@ public class Menu extends ToolBar {
                 System.err.println("Error loading image: " + e.getMessage());
             }
         }
+    }
+
+    void handleSave(ActionEvent event) {
+
     }
 
     void handleLine(ActionEvent event) {
@@ -120,14 +142,26 @@ public class Menu extends ToolBar {
         settingsWindow.showSettings();
     }
 
+    void handleAbout(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("О пыинте");
+        alert.setHeaderText("Пыинт v0.1");
+        alert.setContentText("Автор: Пятанов М.Ю.\n\n" +
+                "Свой \"MS Paint\", сделанный в рамках курса по инженерной графике НГУ ФИТ 3 курс.\n" +
+                "© 2026 Все права защищены.");
+
+        alert.showAndWait();
+    }
+
     public Settings getSettings() {
         return settings;
     }
 
     public void setDrawPanel(DrawPanel drawPanel) {
         this.drawPanel = drawPanel;
-        if (drawPanel != null && settingsWindow == null) {
-            settingsWindow = new SettingsWindow(settings, drawPanel);
+        if (drawPanel != null && settingsWindow == null && newWindow == null) {
+            settingsWindow = new SettingsWindow(settings, drawPanel, stage);
+            newWindow = new NewWindow(stage);
         }
     }
 }

@@ -1,11 +1,11 @@
-package paint.ui;
+package paint.ui.windows;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import paint.ui.DrawPanel;
+import paint.ui.Settings;
 
 public class SettingsToolbar extends VBox {
     private ColorPicker colorPicker;

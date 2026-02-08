@@ -1,8 +1,8 @@
-package paint.ui;
+package paint.ui.clickable;
 
 public class Pencil extends Clickable {
 
-    Pencil(String activeSource, String inactiveSource) {
+    public Pencil(String activeSource, String inactiveSource) {
         super(activeSource, inactiveSource);
     }
 }

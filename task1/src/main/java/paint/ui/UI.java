@@ -46,7 +46,7 @@ public class UI extends BorderPane {
         Menu fileMenu = new Menu("File");
         MenuItem newItem = new MenuItem("New");
         newItem.setOnAction(e -> {
-
+            drawPanel.newImage();
         });
 
         MenuItem openItem = new MenuItem("Open");
@@ -77,6 +77,12 @@ public class UI extends BorderPane {
 
         settingsMenu.getItems().add(settingsItem);
 
-        menuBar.getMenus().addAll(fileMenu, toolsMenu, settingsMenu);
+        Menu helpMenu = new Menu("Help");
+        MenuItem aboutItem = new MenuItem("About");
+        aboutItem.setOnAction(e -> toolbar.handleAbout(e));
+
+        helpMenu.getItems().add(aboutItem);
+
+        menuBar.getMenus().addAll(fileMenu, toolsMenu, settingsMenu, helpMenu);
     }
 }
