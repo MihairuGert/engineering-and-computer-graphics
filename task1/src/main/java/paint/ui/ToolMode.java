@@ -1,5 +1,5 @@
 package paint.ui;
 
 public enum ToolMode {
-    NONE, PENCIL, LINE
+    NONE, PENCIL, LINE, FILL, STAMP
 }

@@ -2,6 +2,7 @@ package paint.ui;
 
 import javafx.scene.paint.Color;
 
+// add otmena
 public class Settings {
     private Color currentColor = Color.RED;
     private int brushSize = 5;

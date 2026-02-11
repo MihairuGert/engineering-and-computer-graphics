@@ -10,13 +10,13 @@ import static paint.ui.Menu.newButtonWithImage;
 
 public class Clickable {
     private boolean isClicked = false;
-    private ImageView inactiveLineImg;
-    private ImageView activeLineImg;
+    private ImageView inactiveImg;
+    private ImageView activeImg;
     private Tooltip tip;
     public Button button;
 
     public void setActive() {
-        button.setGraphic(activeLineImg);
+        button.setGraphic(activeImg);
         isClicked = true;
     }
 
@@ -24,7 +24,7 @@ public class Clickable {
         if (!isClicked) {
             return;
         }
-        button.setGraphic(inactiveLineImg);
+        button.setGraphic(inactiveImg);
         isClicked = false;
     }
 
@@ -33,13 +33,13 @@ public class Clickable {
     }
 
     public Clickable(String inactiveSource) {
-        inactiveLineImg = createIcon(inactiveSource);
+        inactiveImg = createIcon(inactiveSource);
         button = newButtonWithImage(inactiveSource);
     }
 
     Clickable(String activeSource, String inactiveSource) {
-        activeLineImg = createIcon(activeSource);
-        inactiveLineImg = createIcon(inactiveSource);
+        activeImg = createIcon(activeSource);
+        inactiveImg = createIcon(inactiveSource);
         button = newButtonWithImage(inactiveSource);
     }
 

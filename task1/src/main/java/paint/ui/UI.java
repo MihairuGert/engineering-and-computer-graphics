@@ -17,7 +17,7 @@ public class UI extends BorderPane {
         super();
 
         toolbar = new paint.ui.Menu(stage, null);
-        drawPanel = new DrawPanel(1000, 1000, toolbar.getSettings());
+        drawPanel = new DrawPanel(500, 500, toolbar.getSettings());
         toolbar.setDrawPanel(drawPanel);
 
         createMenuBar(stage);
@@ -62,7 +62,13 @@ public class UI extends BorderPane {
         MenuItem lineItem = new MenuItem("Line");
         lineItem.setOnAction(e -> toolbar.handleLine(e));
 
-        toolsMenu.getItems().addAll(pencilItem, lineItem);
+        MenuItem fillItem = new MenuItem("Fill");
+        fillItem.setOnAction(e -> toolbar.handleFill(e));
+
+        MenuItem stampItem = new MenuItem("Stamp");
+        stampItem.setOnAction(e -> toolbar.handleStamp(e));
+
+        toolsMenu.getItems().addAll(pencilItem, lineItem, fillItem, stampItem);
 
         Menu settingsMenu = new Menu("Settings");
         MenuItem settingsItem = new MenuItem("Open Settings");

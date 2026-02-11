@@ -9,9 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import paint.ui.clickable.Clickable;
-import paint.ui.clickable.Line;
-import paint.ui.clickable.Pencil;
+import paint.ui.clickable.*;
 import paint.ui.windows.NewWindow;
 import paint.ui.windows.SettingsWindow;
 
@@ -29,6 +27,8 @@ public class Menu extends ToolBar {
 
     private Line line;
     private Pencil pencil;
+    private Fill fill;
+    private Stamp stamp;
 
     private Stage stage;
     private DrawPanel drawPanel;
@@ -63,6 +63,14 @@ public class Menu extends ToolBar {
         pencil.button.setOnAction(this::handlePencil);
         pencil.setTip("Pencil");
 
+        fill = new Fill("fill_active.png", "fill.png");
+        fill.button.setOnAction(this::handleFill);
+        fill.setTip("Fill");
+
+        stamp = new Stamp("stamp_active.png", "stamp.png");
+        stamp.button.setOnAction(this::handleStamp);
+        stamp.setTip("Stamp");
+
         settingsBtn = new Clickable("settings.png");
         settingsBtn.button.setOnAction(this::handleSettings);
         settingsBtn.setTip("Settings");
@@ -72,7 +80,27 @@ public class Menu extends ToolBar {
         aboutBtn.setTip("About");
 
         getItems().addAll(aboutBtn.button, settingsBtn.button, new Separator(), new_b.button, open.button, save.button, new Separator(),
-                pencil.button, line.button);
+                pencil.button, line.button, fill.button, stamp.button);
+    }
+
+    void handleStamp(ActionEvent event) {
+        if (!stamp.isClicked()) {
+            stamp.setActive();
+            drawPanel.setCurrentTool(ToolMode.STAMP);
+            return;
+        }
+        stamp.setInactive();
+        drawPanel.setCurrentTool(ToolMode.NONE);
+    }
+
+    void handleFill(ActionEvent event) {
+        if (!fill.isClicked()) {
+            fill.setActive();
+            drawPanel.setCurrentTool(ToolMode.FILL);
+            return;
+        }
+        fill.setInactive();
+        drawPanel.setCurrentTool(ToolMode.NONE);
     }
 
     public static ImageView createIcon(String source) {

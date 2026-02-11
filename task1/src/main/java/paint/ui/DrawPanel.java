@@ -2,6 +2,7 @@ package paint.ui;
 
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 
 public class DrawPanel extends ImageView {
     private WritableImage image;
