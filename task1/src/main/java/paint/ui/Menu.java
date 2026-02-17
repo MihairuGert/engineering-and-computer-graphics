@@ -14,6 +14,9 @@ import javafx.stage.Stage;
 import paint.ui.clickable.*;
 import paint.ui.windows.NewWindow;
 import paint.ui.windows.SettingsDialog;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.Region;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -40,6 +43,12 @@ public class Menu extends ToolBar {
     private NewWindow newWindow;
 
     private final ReadOnlyObjectWrapper<ToolButton> activeToolProp = new ReadOnlyObjectWrapper<>();
+
+    private Button redButton;
+    private Button greenButton;
+    private Button blueButton;
+    private Button yellowButton;
+    private Region currentColorIndicator;
 
     public ReadOnlyObjectProperty<ToolButton> activeToolProperty() {
         return activeToolProp.getReadOnlyProperty();
@@ -123,9 +132,50 @@ public class Menu extends ToolBar {
         aboutBtn.button.setOnAction(this::handleAbout);
         aboutBtn.setTip("О программе");
 
+        redButton = createColorButton(Color.RED);
+        greenButton = createColorButton(Color.GREEN);
+        blueButton = createColorButton(Color.BLUE);
+        yellowButton = createColorButton(Color.YELLOW);
+
+        currentColorIndicator = createColorIndicator();
+
         getItems().addAll(aboutBtn.button, settingsBtn.button, new Separator(),
                 new_b.button, open.button, save.button, new Separator(),
-                pencil.button, line.button, fill.button, stamp.button);
+                pencil.button, line.button, fill.button, stamp.button,
+                new Separator(),
+                redButton, greenButton, blueButton, yellowButton,
+                new Separator(),
+                currentColorIndicator);
+    }
+
+    private Button createColorButton(Color color) {
+        Button btn = new Button();
+        btn.setPrefSize(20, 20);
+        btn.setPadding(Insets.EMPTY);
+        btn.setStyle("-fx-background-color: " + toRgbString(color) + "; -fx-border-color: black; -fx-border-width: 1;");
+        btn.setOnAction(e -> {
+            settings.setCurrentColor(color);
+            updateCurrentColorIndicator();
+        });
+        return btn;
+    }
+
+    private Region createColorIndicator() {
+        Region indicator = new Region();
+        indicator.setPrefSize(20, 20);
+        indicator.setStyle("-fx-background-color: " + toRgbString(settings.getCurrentColor()) + "; -fx-border-color: black; -fx-border-width: 1;");
+        return indicator;
+    }
+
+    private void updateCurrentColorIndicator() {
+        currentColorIndicator.setStyle("-fx-background-color: " + toRgbString(settings.getCurrentColor()) + "; -fx-border-color: black; -fx-border-width: 1;");
+    }
+
+    private String toRgbString(Color color) {
+        return String.format("rgb(%d, %d, %d)",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
     }
 
     public void handleToolAction(ActionEvent event) {
@@ -258,6 +308,7 @@ public class Menu extends ToolBar {
             settingsDialog = new SettingsDialog(stage, settings);
         }
         settingsDialog.showAndWait();
+        updateCurrentColorIndicator();
     }
 
     void handleAbout(ActionEvent event) {
@@ -265,7 +316,20 @@ public class Menu extends ToolBar {
         alert.setTitle("О пыинте");
         alert.setHeaderText("Пыинт v0.1");
         alert.setContentText("Автор: Пятанов М.Ю.\n\n" +
-                "Свой \"MS Paint\", сделанный в рамках курса по инженерной графике НГУ ФИТ 3 курс.\n" +
+                "Свой \"MS Paint\", сделанный в рамках курса по инженерной графике НГУ ФИТ 3 курс.\n\n" +
+                "Подсказки по использованию:\n" +
+                "Инструмент «линия» характеризуется двумя параметрами: толщиной линии и текущим цветом. \n" +
+                "Линии рисуются поверх существующего изображения.\n\n" +
+                "Инструмент «штамп» осуществляет рисование контура выбранной фигуры.\n" +
+                        " Фигурой является правильный выпуклый многоугольник или правильная звезда.\n" +
+                        " Штамп рисуется поверх существующего изображения линиями толщины 1 черным цветом.\n" +
+                        " Параметры инструмента «штамп»:\n" +
+                        " 1) форма (тип многоугольника);\n" +
+                        " 2) размер (радиус многоугольника в пикселях);\n" +
+                        " 3) поворот (поворот многоугольника вокруг центра в градусах).\n\n" +
+                        "Инструмент «заливка» начиная с указанной кликом точки (точки затравки) выполняет алгоритм Span-заливки.\n" +
+                        " То есть все пиксели четырехсвязной пиксельной области цвета затравки заполняются текущим цветом.\n" +
+                        " Инструмент «заливка» имеет один параметр – цвет. Цвет для заливки и рисования линии берется из текущего цвета.\n\n"+
                 "© 2026 Все права защищены.");
 
         alert.showAndWait();

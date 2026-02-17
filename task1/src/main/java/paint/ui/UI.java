@@ -42,6 +42,20 @@ public class UI extends BorderPane {
         StackPane centerPane = new StackPane(drawPanel);
         centerPane.setStyle("-fx-background-color: lightgray;");
 
+        centerPane.widthProperty().addListener((obs, oldVal, newVal) -> {
+            int newWidth = newVal.intValue();
+            if (newWidth > drawPanel.getCanvasWidth()) {
+                drawPanel.resizeCanvas(newWidth, drawPanel.getCanvasHeight());
+            }
+        });
+
+        centerPane.heightProperty().addListener((obs, oldVal, newVal) -> {
+            int newHeight = newVal.intValue();
+            if (newHeight > drawPanel.getCanvasHeight()) {
+                drawPanel.resizeCanvas(drawPanel.getCanvasWidth(), newHeight);
+            }
+        });
+
         ScrollPane scrollPane = new ScrollPane(centerPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);

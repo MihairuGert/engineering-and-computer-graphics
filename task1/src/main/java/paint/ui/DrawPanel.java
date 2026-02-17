@@ -1,5 +1,6 @@
 package paint.ui;
 
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 
@@ -269,5 +270,41 @@ public class DrawPanel extends ImageView {
 
     private boolean isInBounds(double x, double y) {
         return x >= 0 && x < image.getWidth() && y >= 0 && y < image.getHeight();
+    }
+
+    public int getCanvasWidth() {
+        return (int) image.getWidth();
+    }
+
+    public int getCanvasHeight() {
+        return (int) image.getHeight();
+    }
+
+    public void resizeCanvas(int newWidth, int newHeight) {
+        if (newWidth <= 0 || newHeight <= 0) return;
+        int oldWidth = getCanvasWidth();
+        int oldHeight = getCanvasHeight();
+        if (newWidth <= oldWidth && newHeight <= oldHeight) return;
+        if (newWidth == oldWidth && newHeight == oldHeight) return;
+
+        WritableImage newImage = new WritableImage(newWidth, newHeight);
+        PixelWriter newWriter = newImage.getPixelWriter();
+
+        for (int x = 0; x < newWidth; x++) {
+            for (int y = 0; y < newHeight; y++) {
+                newWriter.setColor(x, y, Color.WHITE);
+            }
+        }
+
+        PixelReader reader = image.getPixelReader();
+        for (int x = 0; x < oldWidth; x++) {
+            for (int y = 0; y < oldHeight; y++) {
+                newWriter.setColor(x, y, reader.getColor(x, y));
+            }
+        }
+
+        this.image = newImage;
+        this.writer = newWriter;
+        setImage(newImage);
     }
 }
