@@ -12,7 +12,7 @@ public class NewWindow extends Stage {
     public NewWindow(Stage owner, DrawPanel drawPanel) {
         initOwner(owner);
         initStyle(StageStyle.UTILITY);
-        setTitle("Нывый рысунок");
+        setTitle("Новый рысунок");
         setResizable(false);
 
         newToolbar = new NewToolbar(this, drawPanel);

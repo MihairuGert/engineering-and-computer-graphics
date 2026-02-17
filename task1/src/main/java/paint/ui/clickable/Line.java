@@ -16,6 +16,6 @@ public class Line extends ToolButton{
 
     @Override
     public void onActivate(DrawPanel drawPanel) {
-        drawPanel.resetTools();   // special line behaviour
+        drawPanel.resetTools();
     }
 }

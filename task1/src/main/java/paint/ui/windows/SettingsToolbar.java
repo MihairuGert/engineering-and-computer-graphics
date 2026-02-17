@@ -29,11 +29,11 @@ public class SettingsToolbar extends VBox {
     }
 
     private void initializeComponents() {
-        Label colorLabel = new Label("Цвыт:");
+        Label colorLabel = new Label("Цвет:");
         colorPicker = new ColorPicker(settings.getCurrentColor());
         colorPicker.setPrefWidth(150);
 
-        Label brushLabel = new Label("Рызмер кысти:");
+        Label brushLabel = new Label("Размер кисти:");
         brushSizeSlider = new Slider(1, 50, settings.getBrushSize());
         brushSizeSlider.setShowTickLabels(true);
         brushSizeSlider.setShowTickMarks(true);
@@ -43,7 +43,7 @@ public class SettingsToolbar extends VBox {
 
         Label brushValueLabel = new Label(settings.getBrushSize() + "px");
 
-        Label lineLabel = new Label("Рызмер лынии:");
+        Label lineLabel = new Label("Размер линии:");
         lineThicknessSlider = new Slider(1, 10, settings.getLineThickness());
         lineThicknessSlider.setShowTickLabels(true);
         lineThicknessSlider.setShowTickMarks(true);

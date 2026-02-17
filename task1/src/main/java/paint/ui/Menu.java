@@ -17,6 +17,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Menu extends ToolBar {
     private Clickable new_b;
@@ -25,10 +27,8 @@ public class Menu extends ToolBar {
     private Clickable settingsBtn;
     private Clickable aboutBtn;
 
-    private Line line;
-    private Pencil pencil;
-    private Fill fill;
-    private Stamp stamp;
+    private Map<Button, ToolButton> toolMap = new HashMap<>();
+    private ToolButton activeTool = null;
 
     private Stage stage;
     private DrawPanel drawPanel;
@@ -45,62 +45,69 @@ public class Menu extends ToolBar {
 
         new_b = new Clickable("new.png");
         new_b.button.setOnAction(this::handleNew);
-        new_b.setTip("Отчищает изображение");
+        new_b.setTip("Создать новое изображение");
 
         open = new Clickable("open.png");
         open.button.setOnAction(this::handleOpen);
-        open.setTip("Open");
+        open.setTip("Открыть новое изображение");
 
         save = new Clickable("save.png");
         save.button.setOnAction(this::handleSave);
-        save.setTip("Save");
+        save.setTip("Сохранить текущее изображение");
 
-        line = new Line("line_active.png", "line.png");
-        line.button.setOnAction(this::handleLine);
-        line.setTip("Line");
+        ToolButton line = new Line("line_active.png", "line.png");
+        line.button.setOnAction(this::handleToolAction);
+        line.setTip("Линия");
+        toolMap.put(line.button, line);
 
-        pencil = new Pencil("pencil_active.png", "pencil.png");
-        pencil.button.setOnAction(this::handlePencil);
-        pencil.setTip("Pencil");
+        ToolButton pencil = new Pencil("pencil_active.png", "pencil.png");
+        pencil.button.setOnAction(this::handleToolAction);
+        pencil.setTip("Карандаш");
+        toolMap.put(pencil.button, pencil);
 
-        fill = new Fill("fill_active.png", "fill.png");
-        fill.button.setOnAction(this::handleFill);
-        fill.setTip("Fill");
+        ToolButton fill = new Fill("fill_active.png", "fill.png");
+        fill.button.setOnAction(this::handleToolAction);
+        fill.setTip("Заливка");
+        toolMap.put(fill.button, fill);
 
-        stamp = new Stamp("stamp_active.png", "stamp.png");
-        stamp.button.setOnAction(this::handleStamp);
-        stamp.setTip("Stamp");
+        ToolButton stamp = new Stamp("stamp_active.png", "stamp.png");
+        stamp.button.setOnAction(this::handleToolAction);
+        stamp.setTip("Штамп");
+        toolMap.put(stamp.button, stamp);
 
         settingsBtn = new Clickable("settings.png");
         settingsBtn.button.setOnAction(this::handleSettings);
-        settingsBtn.setTip("Settings");
+        settingsBtn.setTip("Настройки");
 
         aboutBtn = new Clickable("about.png");
         aboutBtn.button.setOnAction(this::handleAbout);
-        aboutBtn.setTip("About");
+        aboutBtn.setTip("О программе");
 
-        getItems().addAll(aboutBtn.button, settingsBtn.button, new Separator(), new_b.button, open.button, save.button, new Separator(),
+        getItems().addAll(aboutBtn.button, settingsBtn.button, new Separator(),
+                new_b.button, open.button, save.button, new Separator(),
                 pencil.button, line.button, fill.button, stamp.button);
     }
 
-    void handleStamp(ActionEvent event) {
-        if (!stamp.isClicked()) {
-            stamp.setActive();
-            drawPanel.setCurrentTool(ToolMode.STAMP);
-            return;
-        }
-        stamp.setInactive();
-        drawPanel.setCurrentTool(ToolMode.NONE);
-    }
+    public void handleToolAction(ActionEvent event) {
+        Button source = (Button) event.getSource();
+        ToolButton clickedTool = toolMap.get(source);
+        if (clickedTool == null) return;
 
-    void handleFill(ActionEvent event) {
-        if (!fill.isClicked()) {
-            fill.setActive();
-            drawPanel.setCurrentTool(ToolMode.FILL);
-            return;
+        if (activeTool == clickedTool) {
+            activeTool.setInactive();
+            activeTool.onDeactivate(drawPanel);
+            drawPanel.setCurrentTool(ToolMode.NONE);
+            activeTool = null;
+        } else {
+            if (activeTool != null) {
+                activeTool.setInactive();
+                activeTool.onDeactivate(drawPanel);
+            }
+            clickedTool.setActive();
+            clickedTool.onActivate(drawPanel);
+            drawPanel.setCurrentTool(clickedTool.getToolMode());
+            activeTool = clickedTool;
         }
-        fill.setInactive();
-        drawPanel.setCurrentTool(ToolMode.NONE);
     }
 
     public static ImageView createIcon(String source) {
@@ -218,27 +225,6 @@ public class Menu extends ToolBar {
         } else if (format.equalsIgnoreCase("gif")) {
             ImageIO.write(bImage, "gif", file);
         }
-    }
-
-    void handleLine(ActionEvent event) {
-        if (!line.isClicked()) {
-            line.setActive();
-            drawPanel.setCurrentTool(ToolMode.LINE);
-            drawPanel.resetTools();
-            return;
-        }
-        line.setInactive();
-        drawPanel.setCurrentTool(ToolMode.NONE);
-    }
-
-    void handlePencil(ActionEvent event) {
-        if (!pencil.isClicked()) {
-            pencil.setActive();
-            drawPanel.setCurrentTool(ToolMode.PENCIL);
-            return;
-        }
-        pencil.setInactive();
-        drawPanel.setCurrentTool(ToolMode.NONE);
     }
 
     void handleSettings(ActionEvent event) {

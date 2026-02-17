@@ -40,44 +40,44 @@ public class UI extends BorderPane {
     private void createMenuBar(Stage stage) {
         menuBar = new MenuBar();
 
-        Menu fileMenu = new Menu("File");
-        MenuItem newItem = new MenuItem("New");
+        Menu fileMenu = new Menu("Файл");
+        MenuItem newItem = new MenuItem("Новый");
         newItem.setOnAction(e -> toolbar.handleNew(e));
 
-        MenuItem openItem = new MenuItem("Open");
+        MenuItem openItem = new MenuItem("Открыть");
         openItem.setOnAction(e -> toolbar.handleOpen(e));
 
-        MenuItem saveItem = new MenuItem("Save");
+        MenuItem saveItem = new MenuItem("Сохранить");
         saveItem.setOnAction(e -> toolbar.handleSave(e));
 
-        MenuItem exitItem = new MenuItem("Exit");
+        MenuItem exitItem = new MenuItem("Выход");
         exitItem.setOnAction(e -> stage.close());
 
         fileMenu.getItems().addAll(newItem, openItem, saveItem, new SeparatorMenuItem(), exitItem);
 
-        Menu toolsMenu = new Menu("Tools");
-        MenuItem pencilItem = new MenuItem("Pencil");
-        pencilItem.setOnAction(e -> toolbar.handlePencil(e));
+        Menu toolsMenu = new Menu("Инструменты");
+        MenuItem pencilItem = new MenuItem("Карандаш");
+        pencilItem.setOnAction(e -> toolbar.handleToolAction(e));
 
-        MenuItem lineItem = new MenuItem("Line");
-        lineItem.setOnAction(e -> toolbar.handleLine(e));
+        MenuItem lineItem = new MenuItem("Линия");
+        lineItem.setOnAction(e -> toolbar.handleToolAction(e));
 
-        MenuItem fillItem = new MenuItem("Fill");
-        fillItem.setOnAction(e -> toolbar.handleFill(e));
+        MenuItem fillItem = new MenuItem("Заливка");
+        fillItem.setOnAction(e -> toolbar.handleToolAction(e));
 
-        MenuItem stampItem = new MenuItem("Stamp");
-        stampItem.setOnAction(e -> toolbar.handleStamp(e));
+        MenuItem stampItem = new MenuItem("Штамп");
+        stampItem.setOnAction(e -> toolbar.handleToolAction(e));
 
         toolsMenu.getItems().addAll(pencilItem, lineItem, fillItem, stampItem);
 
-        Menu settingsMenu = new Menu("Settings");
-        MenuItem settingsItem = new MenuItem("Open Settings");
+        Menu settingsMenu = new Menu("Настройки");
+        MenuItem settingsItem = new MenuItem("Открыть");
         settingsItem.setOnAction(e -> toolbar.handleSettings(e));
 
         settingsMenu.getItems().add(settingsItem);
 
-        Menu helpMenu = new Menu("Help");
-        MenuItem aboutItem = new MenuItem("About");
+        Menu helpMenu = new Menu("Помощь");
+        MenuItem aboutItem = new MenuItem("О программе");
         aboutItem.setOnAction(e -> toolbar.handleAbout(e));
 
         helpMenu.getItems().add(aboutItem);
