@@ -1,5 +1,7 @@
 package paint.ui;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -11,7 +13,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import paint.ui.clickable.*;
 import paint.ui.windows.NewWindow;
-import paint.ui.windows.SettingsWindow;
+import paint.ui.windows.SettingsDialog;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -33,9 +35,47 @@ public class Menu extends ToolBar {
     private Stage stage;
     private DrawPanel drawPanel;
     private Settings settings;
-    private SettingsWindow settingsWindow;
+    private SettingsDialog settingsDialog;
 
     private NewWindow newWindow;
+
+    private final ReadOnlyObjectWrapper<ToolButton> activeToolProp = new ReadOnlyObjectWrapper<>();
+
+    public ReadOnlyObjectProperty<ToolButton> activeToolProperty() {
+        return activeToolProp.getReadOnlyProperty();
+    }
+
+    public void activateTool(ToolMode mode) {
+        for (ToolButton tb : toolMap.values()) {
+            if (tb.getToolMode() == mode) {
+                setActiveTool(tb);
+                return;
+            }
+        }
+    }
+
+    private void setActiveTool(ToolButton newTool) {
+        if (activeTool == newTool) {
+            if (activeTool != null) {
+                activeTool.setInactive();
+                activeTool.onDeactivate(drawPanel);
+            }
+            drawPanel.setCurrentTool(ToolMode.NONE);
+            activeTool = null;
+        } else {
+            if (activeTool != null) {
+                activeTool.setInactive();
+                activeTool.onDeactivate(drawPanel);
+            }
+            if (newTool != null) {
+                newTool.setActive();
+                newTool.onActivate(drawPanel);
+                drawPanel.setCurrentTool(newTool.getToolMode());
+            }
+            activeTool = newTool;
+        }
+        activeToolProp.set(activeTool);
+    }
 
     public Menu(Stage stage, DrawPanel drawPanel) {
         super();
@@ -91,22 +131,8 @@ public class Menu extends ToolBar {
     public void handleToolAction(ActionEvent event) {
         Button source = (Button) event.getSource();
         ToolButton clickedTool = toolMap.get(source);
-        if (clickedTool == null) return;
-
-        if (activeTool == clickedTool) {
-            activeTool.setInactive();
-            activeTool.onDeactivate(drawPanel);
-            drawPanel.setCurrentTool(ToolMode.NONE);
-            activeTool = null;
-        } else {
-            if (activeTool != null) {
-                activeTool.setInactive();
-                activeTool.onDeactivate(drawPanel);
-            }
-            clickedTool.setActive();
-            clickedTool.onActivate(drawPanel);
-            drawPanel.setCurrentTool(clickedTool.getToolMode());
-            activeTool = clickedTool;
+        if (clickedTool != null) {
+            setActiveTool(clickedTool);
         }
     }
 
@@ -228,7 +254,10 @@ public class Menu extends ToolBar {
     }
 
     void handleSettings(ActionEvent event) {
-        settingsWindow.showSettings();
+        if (settingsDialog == null) {
+            settingsDialog = new SettingsDialog(stage, settings);
+        }
+        settingsDialog.showAndWait();
     }
 
     void handleAbout(ActionEvent event) {
@@ -248,8 +277,7 @@ public class Menu extends ToolBar {
 
     public void setDrawPanel(DrawPanel drawPanel) {
         this.drawPanel = drawPanel;
-        if (drawPanel != null && settingsWindow == null && newWindow == null) {
-            settingsWindow = new SettingsWindow(stage, settings, drawPanel);
+        if (drawPanel != null && newWindow == null) {
             newWindow = new NewWindow(stage, drawPanel);
         }
     }

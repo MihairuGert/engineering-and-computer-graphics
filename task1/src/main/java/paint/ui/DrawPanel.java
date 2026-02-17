@@ -4,6 +4,7 @@ import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 public class DrawPanel extends ImageView {
@@ -103,6 +104,7 @@ public class DrawPanel extends ImageView {
                 case FILL -> {
                     spanFill((int) event.getX(), (int) event.getY(), settings.getCurrentColor());
                 }
+                case STAMP -> drawStamp((int) event.getX(), (int) event.getY());
             }
         });
         setOnMouseDragged(event -> {
@@ -116,11 +118,50 @@ public class DrawPanel extends ImageView {
         });
     }
 
-    private class Span {
+    private void drawStamp(int x, int y) {
+        double pointAngleDelta = 360f / settings.getSidesCount();
+        List<Point> points = new ArrayList<>();
+        for (int i = 0; i < settings.getSidesCount(); i++) {
+            int xp = x + (int) (settings.getRadius() * Math.cos(Math.toRadians(i * pointAngleDelta + settings.getRotation())));
+            int yp = y + (int) (settings.getRadius() * Math.sin(Math.toRadians(i * pointAngleDelta + settings.getRotation())));
+            points.add(new Point(xp, yp));
+        }
+        switch (settings.getStampType()) {
+            case STAR -> {
+                List<Point> pointsLower = new ArrayList<>();
+                for (int i = 0; i < settings.getSidesCount(); i++) {
+                    int xp = x + (int) (settings.getRadius() * 0.4 * Math.cos(Math.toRadians(i * pointAngleDelta + settings.getRotation() + pointAngleDelta / 2)));
+                    int yp = y + (int) (settings.getRadius() * 0.4 * Math.sin(Math.toRadians(i * pointAngleDelta + settings.getRotation() + pointAngleDelta / 2)));
+                    pointsLower.add(new Point(xp, yp));
+                }
+                for (int i = 0; i < points.size(); i++) {
+                    var p1 = points.get(i);
+                    var lp1 = pointsLower.get(i);
+                    var lp2 = pointsLower.get((i + points.size() - 1) % points.size());
+                    drawLine(p1.x, p1.y, lp1.x, lp1.y, settings.getCurrentColor(), settings.getLineThickness());
+                    drawLine(p1.x, p1.y, lp2.x, lp2.y, settings.getCurrentColor(), settings.getLineThickness());
+                }
+            }
+            case POLYGON -> {
+                for (int i = 0; i < points.size(); i++) {
+                    var p1 = points.get(i);
+                    Point p2;
+                    if (i == points.size() - 1) {
+                        p2 = points.getFirst();
+                    } else {
+                        p2 = points.get(i + 1);
+                    }
+                    drawLine(p1.x, p1.y, p2.x, p2.y, settings.getCurrentColor(), settings.getLineThickness());
+                }
+            }
+        }
+    }
+
+    private class Point {
         private int x;
         private int y;
 
-        public Span(int x, int y) {
+        public Point(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -133,10 +174,10 @@ public class DrawPanel extends ImageView {
         Color seedColor = image.getPixelReader().getColor(x, y);
         if (seedColor.equals(color))
             return;
-        Stack<Span> spans = new Stack<>();
-        spans.add(new Span(x,y));
-        while(!spans.isEmpty()) {
-            Span s = spans.pop();
+        Stack<Point> points = new Stack<>();
+        points.add(new Point(x,y));
+        while(!points.isEmpty()) {
+            Point s = points.pop();
             int lx = s.x;
             int rx = s.x;
             while (needFill(lx-1, s.y, seedColor)) {
@@ -147,19 +188,19 @@ public class DrawPanel extends ImageView {
                 writer.setColor(rx, s.y, color);
                 rx++;
             }
-            spans.addAll(scanSpans(lx, rx-1, s.y+1, seedColor));
-            spans.addAll(scanSpans(lx, rx-1, s.y-1, seedColor));
+            points.addAll(scanSpans(lx, rx-1, s.y+1, seedColor));
+            points.addAll(scanSpans(lx, rx-1, s.y-1, seedColor));
         }
     }
 
-    private ArrayList<Span> scanSpans(int lx, int rx, int y, Color color) {
+    private ArrayList<Point> scanSpans(int lx, int rx, int y, Color color) {
         boolean isSpanAdded = false;
-        ArrayList<Span> res = new ArrayList<>();
+        ArrayList<Point> res = new ArrayList<>();
         for (int x = lx; x <= rx; x++) {
             if (!needFill(x, y, color)) {
                 isSpanAdded = false;
             } else if (!isSpanAdded) {
-                res.add(new Span(x,y));
+                res.add(new Point(x,y));
                 isSpanAdded = true;
             }
         }
