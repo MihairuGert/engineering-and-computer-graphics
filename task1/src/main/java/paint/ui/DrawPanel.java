@@ -111,7 +111,38 @@ public class DrawPanel extends ImageView {
     }
 
     private void drawLineBresenham(int x0, int y0, int x1, int y1, Color color, int thickness) {
+        int x = x0;
+        int y = y0;
 
+        int dx = x1 - x;
+        int dy = y1 - y;
+
+        int xSign = dx > 0 ? 1 : -1;
+        int ySign = dy > 0 ? 1 : -1;
+
+        if (ySign * dy < xSign * dx) {
+            int err = -xSign*dx;
+            for (int i = 0; i < xSign*dx; i++) {
+                x += xSign;
+                err += 2 * dy * ySign;
+                if (err > 0) {
+                    err -= 2 * xSign * dx;
+                    y += ySign;
+                }
+                writer.setColor(x, y, color);
+            }
+        } else {
+            int err = -dy * ySign;
+            for (int i = 0; i < dy * ySign; i++) {
+                y += ySign;
+                err += 2 * dx * xSign;
+                if (err > 0) {
+                    err -= 2 * dy * ySign;
+                    x += xSign;
+                }
+                writer.setColor(x, y, color);
+            }
+        }
     }
 
     private void drawPoint(int centerX, int centerY, Color color, int radius) {
