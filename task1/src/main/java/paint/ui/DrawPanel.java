@@ -139,11 +139,11 @@ public class DrawPanel extends ImageView {
             Span s = spans.pop();
             int lx = s.x;
             int rx = s.x;
-            while (isInside(lx-1, s.y, seedColor)) {
+            while (needFill(lx-1, s.y, seedColor)) {
                 writer.setColor(lx-1, s.y, color);
                 lx--;
             }
-            while (isInside(rx, s.y, seedColor)) {
+            while (needFill(rx, s.y, seedColor)) {
                 writer.setColor(rx, s.y, color);
                 rx++;
             }
@@ -156,7 +156,7 @@ public class DrawPanel extends ImageView {
         boolean isSpanAdded = false;
         ArrayList<Span> res = new ArrayList<>();
         for (int x = lx; x <= rx; x++) {
-            if (!isInside(x, y, color)) {
+            if (!needFill(x, y, color)) {
                 isSpanAdded = false;
             } else if (!isSpanAdded) {
                 res.add(new Span(x,y));
@@ -166,7 +166,7 @@ public class DrawPanel extends ImageView {
         return res;
     }
 
-    private boolean isInside(int x, int y, Color color) {
+    private boolean needFill(int x, int y, Color color) {
         if (!isInBounds(x, y))
             return false;
         return image.getPixelReader().getColor(x, y).equals(color);

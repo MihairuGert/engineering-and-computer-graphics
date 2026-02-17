@@ -37,7 +37,7 @@ public class Clickable {
         button = newButtonWithImage(inactiveSource);
     }
 
-    Clickable(String activeSource, String inactiveSource) {
+    protected Clickable(String activeSource, String inactiveSource) {
         activeImg = createIcon(activeSource);
         inactiveImg = createIcon(inactiveSource);
         button = newButtonWithImage(inactiveSource);
