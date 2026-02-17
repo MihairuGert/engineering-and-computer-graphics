@@ -224,6 +224,7 @@ public class Menu extends ToolBar {
         if (!line.isClicked()) {
             line.setActive();
             drawPanel.setCurrentTool(ToolMode.LINE);
+            drawPanel.resetTools();
             return;
         }
         line.setInactive();

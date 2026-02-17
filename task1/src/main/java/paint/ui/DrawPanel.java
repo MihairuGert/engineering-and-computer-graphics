@@ -2,7 +2,9 @@ package paint.ui;
 
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
+
+import java.util.ArrayList;
+import java.util.Stack;
 
 public class DrawPanel extends ImageView {
     private WritableImage image;
@@ -71,6 +73,11 @@ public class DrawPanel extends ImageView {
     private double lastX = -1;
     private double lastY = -1;
 
+    public void resetTools() {
+        lastY = -1;
+        lastX = -1;
+    }
+
     private void setUpTools() {
         setOnMouseClicked(event -> {
             switch (currentTool) {
@@ -93,6 +100,9 @@ public class DrawPanel extends ImageView {
                                 settings.getCurrentColor(), settings.getBrushSize());
                     }
                 }
+                case FILL -> {
+                    spanFill((int) event.getX(), (int) event.getY(), settings.getCurrentColor());
+                }
             }
         });
         setOnMouseDragged(event -> {
@@ -106,11 +116,67 @@ public class DrawPanel extends ImageView {
         });
     }
 
+    private class Span {
+        private int x;
+        private int y;
+
+        public Span(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    private void spanFill(int x, int y, Color color) {
+        if (!isInBounds(x, y)) {
+            return;
+        }
+        Color seedColor = image.getPixelReader().getColor(x, y);
+        if (seedColor.equals(color))
+            return;
+        Stack<Span> spans = new Stack<>();
+        spans.add(new Span(x,y));
+        while(!spans.isEmpty()) {
+            Span s = spans.pop();
+            int lx = s.x;
+            int rx = s.x;
+            while (isInside(lx-1, s.y, seedColor)) {
+                writer.setColor(lx-1, s.y, color);
+                lx--;
+            }
+            while (isInside(rx, s.y, seedColor)) {
+                writer.setColor(rx, s.y, color);
+                rx++;
+            }
+            spans.addAll(scanSpans(lx, rx-1, s.y+1, seedColor));
+            spans.addAll(scanSpans(lx, rx-1, s.y-1, seedColor));
+        }
+    }
+
+    private ArrayList<Span> scanSpans(int lx, int rx, int y, Color color) {
+        boolean isSpanAdded = false;
+        ArrayList<Span> res = new ArrayList<>();
+        for (int x = lx; x <= rx; x++) {
+            if (!isInside(x, y, color)) {
+                isSpanAdded = false;
+            } else if (!isSpanAdded) {
+                res.add(new Span(x,y));
+                isSpanAdded = true;
+            }
+        }
+        return res;
+    }
+
+    private boolean isInside(int x, int y, Color color) {
+        if (!isInBounds(x, y))
+            return false;
+        return image.getPixelReader().getColor(x, y).equals(color);
+    }
+
     private void drawLine(int x0, int y0, int x1, int y1, Color color, int thickness) {
         drawLineBresenham(x0, y0, x1, y1, color, thickness);
     }
 
-    private void drawLineBresenham(int x0, int y0, int x1, int y1, Color color, int thickness) {
+    private void drawLineBresenham(int x0, int y0, int x1, int y1, Color color, int thinkness) {
         int x = x0;
         int y = y0;
 
@@ -129,7 +195,7 @@ public class DrawPanel extends ImageView {
                     err -= 2 * xSign * dx;
                     y += ySign;
                 }
-                writer.setColor(x, y, color);
+                drawPoint(x, y, color, thinkness/2 + 1);
             }
         } else {
             int err = -dy * ySign;
@@ -140,7 +206,7 @@ public class DrawPanel extends ImageView {
                     err -= 2 * dy * ySign;
                     x += xSign;
                 }
-                writer.setColor(x, y, color);
+                drawPoint(x, y, color, thinkness/2 + 1);
             }
         }
     }
