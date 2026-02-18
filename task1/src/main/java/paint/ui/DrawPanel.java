@@ -124,7 +124,7 @@ public class DrawPanel extends ImageView {
         List<Point> points = new ArrayList<>();
         for (int i = 0; i < settings.getSidesCount(); i++) {
             int xp = x + (int) (settings.getRadius() * Math.cos(Math.toRadians(i * pointAngleDelta + settings.getRotation())));
-            int yp = y + (int) (settings.getRadius() * Math.sin(Math.toRadians(i * pointAngleDelta + settings.getRotation())));
+            int yp = y + (int) (-settings.getRadius() * Math.sin(Math.toRadians(i * pointAngleDelta + settings.getRotation())));
             points.add(new Point(xp, yp));
         }
         switch (settings.getStampType()) {
@@ -132,7 +132,7 @@ public class DrawPanel extends ImageView {
                 List<Point> pointsLower = new ArrayList<>();
                 for (int i = 0; i < settings.getSidesCount(); i++) {
                     int xp = x + (int) (settings.getRadius() * 0.4 * Math.cos(Math.toRadians(i * pointAngleDelta + settings.getRotation() + pointAngleDelta / 2)));
-                    int yp = y + (int) (settings.getRadius() * 0.4 * Math.sin(Math.toRadians(i * pointAngleDelta + settings.getRotation() + pointAngleDelta / 2)));
+                    int yp = y + (int) (-settings.getRadius() * 0.4 * Math.sin(Math.toRadians(i * pointAngleDelta + settings.getRotation() + pointAngleDelta / 2)));
                     pointsLower.add(new Point(xp, yp));
                 }
                 for (int i = 0; i < points.size(); i++) {
@@ -237,7 +237,10 @@ public class DrawPanel extends ImageView {
                     err -= 2 * xSign * dx;
                     y += ySign;
                 }
-                drawPoint(x, y, color, thinkness/2 + 1);
+                if (thinkness == 1)
+                    writer.setColor(x, y, color);
+                else
+                    drawPoint(x, y, color, thinkness/2 + 1);
             }
         } else {
             int err = -dy * ySign;
@@ -248,7 +251,10 @@ public class DrawPanel extends ImageView {
                     err -= 2 * dy * ySign;
                     x += xSign;
                 }
-                drawPoint(x, y, color, thinkness/2 + 1);
+                if (thinkness == 1)
+                    writer.setColor(x, y, color);
+                else
+                    drawPoint(x, y, color, thinkness/2 + 1);
             }
         }
     }
@@ -285,7 +291,6 @@ public class DrawPanel extends ImageView {
         int oldWidth = getCanvasWidth();
         int oldHeight = getCanvasHeight();
         if (newWidth <= oldWidth && newHeight <= oldHeight) return;
-        if (newWidth == oldWidth && newHeight == oldHeight) return;
 
         WritableImage newImage = new WritableImage(newWidth, newHeight);
         PixelWriter newWriter = newImage.getPixelWriter();
