@@ -120,6 +120,8 @@ public class MainWindow extends BorderPane {
     private StackPane createCanvasPane() {
         StackPane pane = new StackPane(canvas);
         pane.setPadding(Insets.EMPTY);
+        pane.setMinSize(0, 0);
+        pane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         pane.setStyle("-fx-background-color: white;");
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());

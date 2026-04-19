@@ -23,6 +23,7 @@ public class MainApp extends Application {
 
         stage.setTitle("ICGWireframe");
         stage.setScene(new Scene(mainWindow, INITIAL_WIDTH, INITIAL_HEIGHT));
+        stage.setResizable(true);
         stage.setMinWidth(MIN_WIDTH);
         stage.setMinHeight(MIN_HEIGHT);
         stage.show();

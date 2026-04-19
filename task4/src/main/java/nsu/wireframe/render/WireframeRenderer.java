@@ -3,8 +3,12 @@ package nsu.wireframe.render;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import nsu.wireframe.math.ColorService;
+import nsu.wireframe.math.Matrix4;
 import nsu.wireframe.math.ProjectionService;
+import nsu.wireframe.math.Vector4;
 import nsu.wireframe.model.AppState;
+import nsu.wireframe.model.Point2DModel;
+import nsu.wireframe.model.Point3DModel;
 import nsu.wireframe.model.Segment2D;
 import nsu.wireframe.model.Segment3D;
 
@@ -24,7 +28,7 @@ public class WireframeRenderer {
     public void render(GraphicsContext gc, double width, double height, AppState state) {
         clear(gc, width, height);
         drawWireframe(gc, width, height, state);
-        drawAxesOverlay(gc, width, height);
+        drawAxesOverlay(gc, width, height, state);
         drawStatus(gc, state);
     }
 
@@ -98,26 +102,51 @@ public class WireframeRenderer {
         return normalized;
     }
 
-    private void drawAxesOverlay(GraphicsContext gc, double width, double height) {
+    private void drawAxesOverlay(GraphicsContext gc, double width, double height, AppState state) {
         double originX = 55;
         double originY = height - 55;
-        double length = 38;
+        double length = 42;
+        Matrix4 modelView = projectionService.buildModelViewMatrix(state.getViewParameters(), state.getCameraConfig());
+
+        Point2DModel origin = axisPoint(new Point3DModel(0, 0, 0), modelView);
+        Point2DModel xEnd = axisPoint(new Point3DModel(1, 0, 0), modelView);
+        Point2DModel yEnd = axisPoint(new Point3DModel(0, 1, 0), modelView);
+        Point2DModel zEnd = axisPoint(new Point3DModel(0, 0, 1), modelView);
 
         gc.setLineWidth(2);
-        gc.setStroke(Color.rgb(190, 45, 45));
-        gc.strokeLine(originX, originY, originX + length, originY);
-        gc.setFill(Color.rgb(190, 45, 45));
-        gc.fillText("X", originX + length + 6, originY + 4);
+        drawAxis(gc, originX, originY, length, origin, xEnd, Color.rgb(190, 45, 45), "X");
+        drawAxis(gc, originX, originY, length, origin, yEnd, Color.rgb(45, 150, 75), "Y");
+        drawAxis(gc, originX, originY, length, origin, zEnd, Color.rgb(45, 80, 190), "Z");
+    }
 
-        gc.setStroke(Color.rgb(45, 150, 75));
-        gc.strokeLine(originX, originY, originX, originY - length);
-        gc.setFill(Color.rgb(45, 150, 75));
-        gc.fillText("Y", originX - 4, originY - length - 6);
+    private Point2DModel axisPoint(Point3DModel point, Matrix4 matrix) {
+        Vector4 vector = matrix.transform(new Vector4(point.x(), point.y(), point.z(), 1));
+        double w = vector.get(Vector4.W_INDEX);
+        if (w == 0) {
+            return new Point2DModel(vector.get(Vector4.X_INDEX), vector.get(Vector4.Y_INDEX));
+        }
+        return new Point2DModel(vector.get(Vector4.X_INDEX) / w, vector.get(Vector4.Y_INDEX) / w);
+    }
 
-        gc.setStroke(Color.rgb(45, 80, 190));
-        gc.strokeLine(originX, originY, originX + length * 0.65, originY + length * 0.45);
-        gc.setFill(Color.rgb(45, 80, 190));
-        gc.fillText("Z", originX + length * 0.65 + 6, originY + length * 0.45 + 4);
+    private void drawAxis(
+            GraphicsContext gc,
+            double originX,
+            double originY,
+            double length,
+            Point2DModel origin,
+            Point2DModel end,
+            Color color,
+            String label
+    ) {
+        double dx = end.x() - origin.x();
+        double dy = end.y() - origin.y();
+        double endX = originX + dx * length;
+        double endY = originY - dy * length;
+
+        gc.setStroke(color);
+        gc.strokeLine(originX, originY, endX, endY);
+        gc.setFill(color);
+        gc.fillText(label, endX + 6, endY + 4);
     }
 
     private void drawStatus(GraphicsContext gc, AppState state) {
