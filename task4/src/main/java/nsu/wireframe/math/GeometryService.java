@@ -32,12 +32,17 @@ public class GeometryService {
 
         for (int i = 0; i < m; i++) {
             var points = new ArrayList<Point3DModel>();
+            double angle = ((double) i * 2.0 * Math.PI) / m;
+
             for (Point2DModel splinePoint : splinePoints) {
-                double x = splinePoint.y() * Math.cos(((double) i * 2 * Math.PI) / m);
-                double y = splinePoint.y() * Math.sin(((double) i * 2 * Math.PI) / m);
+                double radius = Math.abs(splinePoint.y());
+                double x = radius * Math.cos(angle);
+                double y = radius * Math.sin(angle);
                 double z = splinePoint.x();
+
                 points.add(new Point3DModel(x, y, z));
             }
+
             res.add(points);
         }
 

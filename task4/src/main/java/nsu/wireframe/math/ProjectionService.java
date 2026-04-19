@@ -14,47 +14,26 @@ import java.util.Optional;
 
 public class ProjectionService {
     public List<Segment3D> applyTransformPipeline(WireframeModel model, ViewParameters view, CameraConfig camera) {
-        Matrix4 resultMatrix = buildResultTransformMatrix(view, camera);
-        return transformSegments(model.getSegments(), resultMatrix);
+        Matrix4 modelViewMatrix = buildModelViewMatrix(view, camera);
+        return transformSegments(model.getSegments(), modelViewMatrix);
     }
 
-    public Matrix4 buildRotationMatrix(ViewParameters view) {
-        double angleX = Math.toRadians(view.getRotationX());
-        double angleY = Math.toRadians(view.getRotationY());
-        double angleZ = Math.toRadians(view.getRotationZ());
-
-        Matrix4 rotationX = new Matrix4(new double[][]{
-                {1, 0, 0, 0},
-                {0, Math.cos(angleX), -Math.sin(angleX), 0},
-                {0, Math.sin(angleX), Math.cos(angleX), 0},
-                {0, 0, 0, 1}
-        });
-
-        Matrix4 rotationY = new Matrix4(new double[][]{
-                {Math.cos(angleY), 0, Math.sin(angleY), 0},
-                {0, 1, 0, 0},
-                {-Math.sin(angleY), 0, Math.cos(angleY), 0},
-                {0, 0, 0, 1}
-        });
-
-        Matrix4 rotationZ = new Matrix4(new double[][]{
-                {Math.cos(angleZ), -Math.sin(angleZ), 0, 0},
-                {Math.sin(angleZ), Math.cos(angleZ), 0, 0},
-                {0, 0, 1, 0},
-                {0, 0, 0, 1}
-        });
+    public Matrix4 buildModelMatrix(ViewParameters view) {
+        Matrix4 rotationX = Matrix4.rotationX(Math.toRadians(view.getRotationX()));
+        Matrix4 rotationY = Matrix4.rotationY(Math.toRadians(view.getRotationY()));
+        Matrix4 rotationZ = Matrix4.rotationZ(Math.toRadians(view.getRotationZ()));
 
         return rotationZ.multiply(rotationY).multiply(rotationX);
     }
 
-    public Matrix4 buildResultTransformMatrix(ViewParameters view, CameraConfig camera) {
-        Matrix4 rotationMatrix = buildRotationMatrix(view);
+    public Matrix4 buildModelViewMatrix(ViewParameters view, CameraConfig camera) {
+        Matrix4 modelMatrix = buildModelMatrix(view);
         Matrix4 cameraMatrix = buildCameraMatrix(camera);
 
-        return cameraMatrix.multiply(rotationMatrix);
+        return cameraMatrix.multiply(modelMatrix);
     }
 
-    private Matrix4 buildCameraMatrix(CameraConfig camera) {
+    public Matrix4 buildCameraMatrix(CameraConfig camera) {
         Point3DModel eye = camera.getPcam();
         Point3DModel target = camera.getPview();
         Point3DModel vup = camera.getVup();
@@ -70,6 +49,14 @@ public class ProjectionService {
                 {k.x(), k.y(), k.z(), -dot(k, eye)},
                 {0, 0, 0, 1}
         });
+    }
+
+    public Matrix4 buildProjectionMatrix(ViewParameters view) {
+        return Matrix4.perspective(view.getZn());
+    }
+
+    public Matrix4 buildViewportMatrix(double width, double height) {
+        return Matrix4.viewport(width, height);
     }
 
     private Point3DModel subtract(Point3DModel first, Point3DModel second) {
@@ -117,6 +104,10 @@ public class ProjectionService {
     }
 
     public Optional<Segment2D> projectSegment(Segment3D segment, double width, double height, ViewParameters view, CameraConfig camera) {
+        if (width <= 0 || height <= 0) {
+            return Optional.empty();
+        }
+
         Optional<Point2DModel> start = perspectiveProject(segment.start(), view, camera)
                 .map(point -> toScreenCoordinates(point, width, height));
         Optional<Point2DModel> end = perspectiveProject(segment.end(), view, camera)
@@ -130,29 +121,44 @@ public class ProjectionService {
     }
 
     public Optional<Point2DModel> perspectiveProject(Point3DModel point, ViewParameters view, CameraConfig camera) {
-        if (point.z() <= 0) {
+        if (!point.isFinite() || point.z() <= 0) {
             return Optional.empty();
         }
 
-        return Optional.of(
-                new Point2DModel(
-                (view.getZn() * point.x()) / point.z(),
-                (view.getZn() * point.y()) / point.z())
-        );
+        Vector4 clip = buildProjectionMatrix(view).transform(new Vector4(point.x(), point.y(), point.z(), 1));
+        Optional<Vector4> projected = divideByW(clip);
+        if (projected.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Vector4 vector = projected.get();
+        return Optional.of(new Point2DModel(vector.get(Vector4.X_INDEX), vector.get(Vector4.Y_INDEX)));
     }
 
     public Point2DModel toScreenCoordinates(Point2DModel projectedPoint, double width, double height) {
-        double aspect = width / height;
-        double sh = 2.0;
-        double sw = 2.0 * aspect;
+        Vector4 screen = buildViewportMatrix(width, height)
+                .transform(new Vector4(projectedPoint.x(), projectedPoint.y(), 0, 1));
+        double w = screen.get(Vector4.W_INDEX);
+        if (w == 0) {
+            return new Point2DModel(screen.get(Vector4.X_INDEX), screen.get(Vector4.Y_INDEX));
+        }
+        return new Point2DModel(screen.get(Vector4.X_INDEX) / w, screen.get(Vector4.Y_INDEX) / w);
+    }
 
-        double xn = 2.0 * projectedPoint.x() / sw;
-        double yn = 2.0 * projectedPoint.y() / sh;
+    private Optional<Vector4> divideByW(Vector4 vector) {
+        double w = vector.get(Vector4.W_INDEX);
+        if (!Double.isFinite(w) || w == 0) {
+            return Optional.empty();
+        }
 
-        double screenX = (xn + 1.0) * 0.5 * width;
-        double screenY = (1.0 - yn) * 0.5 * height;
+        double x = vector.get(Vector4.X_INDEX) / w;
+        double y = vector.get(Vector4.Y_INDEX) / w;
+        double z = vector.get(Vector4.Z_INDEX) / w;
+        if (!Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
+            return Optional.empty();
+        }
 
-        return new Point2DModel(screenX, screenY);
+        return Optional.of(new Vector4(x, y, z, 1));
     }
 
     public double calculatePointDepth(Point3DModel point) {

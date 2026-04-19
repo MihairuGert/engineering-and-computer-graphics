@@ -215,7 +215,18 @@ public class MainWindow extends BorderPane {
         AlertUtils.showInfo(
                 stage,
                 "About",
-                "ICGWireframe\n\n"
+                "ICGWireframe\n\n" +
+                        "This program displays a wireframe surface of revolution built from a 2D generatrix.\n\n" +
+                        "Main features:\n" +
+                        "- edit control points in the generatrix editor;\n" +
+                        "- preview the B-spline generatrix;\n" +
+                        "- configure K, N, M, and M1 parameters;\n" +
+                        "- rotate the model with the mouse;\n" +
+                        "- zoom with the mouse wheel using Zn;\n" +
+                        "- reset rotation angles;\n" +
+                        "- save and load scenes in a simple text format;\n" +
+                        "- render the model as a wireframe with depth-based coloring.\n\n" +
+                        "Made by Mikhail Pyatanov 2026."
         );
     }
 

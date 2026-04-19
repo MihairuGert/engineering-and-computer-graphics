@@ -16,11 +16,63 @@ public class Matrix4 {
         this.values = new double[SIZE][SIZE];
     }
 
-    public static Matrix4 identity() {
-        double[][] values = new double[SIZE][SIZE];
-        for (int i = 0; i < SIZE; i++) {
-            values[i][i] = 1.0;
-        }
+    public static Matrix4 rotationX(double angle) {
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
+        double[][] values = {
+                {1, 0, 0, 0},
+                {0, cos, -sin, 0},
+                {0, sin, cos, 0},
+                {0, 0, 0, 1}
+        };
+        return new Matrix4(values);
+    }
+
+    public static Matrix4 rotationY(double angle) {
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
+        double[][] values = {
+                {cos, 0, sin, 0},
+                {0, 1, 0, 0},
+                {-sin, 0, cos, 0},
+                {0, 0, 0, 1}
+        };
+        return new Matrix4(values);
+    }
+
+    public static Matrix4 rotationZ(double angle) {
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
+        double[][] values = {
+                {cos, -sin, 0, 0},
+                {sin, cos, 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        };
+        return new Matrix4(values);
+    }
+
+    public static Matrix4 perspective(double zn) {
+        double[][] values = {
+                {zn, 0, 0, 0},
+                {0, zn, 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 1, 0}
+        };
+        return new Matrix4(values);
+    }
+
+    public static Matrix4 viewport(double width, double height) {
+        double aspect = width / height;
+        double sw = 2.0 * aspect;
+        double sh = 2.0;
+
+        double[][] values = {
+                {width / sw, 0, 0, width / 2.0},
+                {0, -height / sh, 0, height / 2.0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        };
         return new Matrix4(values);
     }
 
