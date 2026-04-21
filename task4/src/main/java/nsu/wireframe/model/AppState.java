@@ -28,11 +28,11 @@ public class AppState {
 
     public static AppState createDefault() {
         List<ControlPoint> points = List.of(
-                new ControlPoint(0.20, -0.80),
-                new ControlPoint(0.45, -0.35),
+                new ControlPoint(-0.20, -0.80),
+                new ControlPoint(-0.5, -0.35),
                 new ControlPoint(0.35, 0.10),
-                new ControlPoint(0.60, 0.55),
-                new ControlPoint(0.25, 0.85)
+                new ControlPoint(0.70, 0.55),
+                new ControlPoint(0.35, 0.85)
         );
         return new AppState(
                 new SceneParameters(points.size(), 8, 12, 2),

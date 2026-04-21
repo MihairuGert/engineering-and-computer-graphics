@@ -59,16 +59,6 @@ public final class Validators {
         }
     }
 
-    public static double parseFiniteDouble(String text, String name) throws ValidationException {
-        try {
-            double value = Double.parseDouble(text.trim());
-            validateFinite(value, name);
-            return value;
-        } catch (NumberFormatException e) {
-            throw new ValidationException(name + " must be a finite number.");
-        }
-    }
-
     private static void validateMin(int value, String name, int minValue) throws ValidationException {
         if (value < minValue) {
             throw new ValidationException(name + " must be at least " + minValue + ".");

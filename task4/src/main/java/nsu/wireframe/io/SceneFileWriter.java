@@ -16,15 +16,15 @@ public class SceneFileWriter {
         builder.append("N=").append(scene.getN()).append('\n');
         builder.append("M=").append(scene.getM()).append('\n');
         builder.append("M1=").append(scene.getM1()).append('\n');
-        builder.append("ZN=").append(Double.toString(view.getZn())).append('\n');
-        builder.append("ROT_X=").append(Double.toString(view.getRotationX())).append('\n');
-        builder.append("ROT_Y=").append(Double.toString(view.getRotationY())).append('\n');
-        builder.append("ROT_Z=").append(Double.toString(view.getRotationZ())).append('\n');
+        builder.append("ZN=").append(view.getZn()).append('\n');
+        builder.append("ROT_X=").append(view.getRotationX()).append('\n');
+        builder.append("ROT_Y=").append(view.getRotationY()).append('\n');
+        builder.append("ROT_Z=").append(view.getRotationZ()).append('\n');
         builder.append("POINTS_BEGIN").append('\n');
         for (ControlPoint point : state.getControlPoints()) {
-            builder.append(Double.toString(point.u()))
+            builder.append(point.u())
                     .append(' ')
-                    .append(Double.toString(point.v()))
+                    .append(point.v())
                     .append('\n');
         }
         builder.append("POINTS_END").append('\n');

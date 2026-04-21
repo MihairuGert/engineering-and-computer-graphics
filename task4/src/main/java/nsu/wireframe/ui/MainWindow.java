@@ -32,6 +32,7 @@ import java.io.File;
 public class MainWindow extends BorderPane {
     private static final double ROTATION_STEP_PER_PIXEL = 0.5;
     private static final double MIN_ZN = 0.1;
+    private static final double MAX_ZN = 100000;
 
     private final Stage stage;
     private final AppState state;
@@ -154,7 +155,7 @@ public class MainWindow extends BorderPane {
 
         canvas.setOnScroll(event -> {
             double factor = event.getDeltaY() > 0 ? 1.1 : 1.0 / 1.1;
-            double nextZn = Math.max(MIN_ZN, state.getViewParameters().getZn() * factor);
+            double nextZn = Math.clamp(state.getViewParameters().getZn() * factor, MIN_ZN, MAX_ZN);
             state.getViewParameters().setZn(nextZn);
             refreshScene();
         });
@@ -185,7 +186,7 @@ public class MainWindow extends BorderPane {
 
     private void handleSaveScene(ActionEvent event) {
         FileChooser fileChooser = createSceneFileChooser("Save Scene");
-        fileChooser.setInitialFileName("scene.icgw");
+        fileChooser.setInitialFileName("scene");
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) {
             return;
