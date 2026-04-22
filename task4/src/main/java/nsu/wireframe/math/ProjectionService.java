@@ -117,7 +117,12 @@ public class ProjectionService {
             return Optional.empty();
         }
 
-        return Optional.of(new Segment2D(start.get(), end.get(), calculateSegmentDepth(segment)));
+        return Optional.of(new Segment2D(
+                start.get(),
+                end.get(),
+                calculatePointDepth(segment.start()),
+                calculatePointDepth(segment.end())
+        ));
     }
 
     public Optional<Point2DModel> perspectiveProject(Point3DModel point, ViewParameters view, CameraConfig camera) {

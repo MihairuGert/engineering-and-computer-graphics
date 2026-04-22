@@ -1,6 +1,7 @@
 package nsu.wireframe.render;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 import nsu.wireframe.math.ColorService;
 import nsu.wireframe.math.Matrix4;
@@ -68,24 +69,103 @@ public class WireframeRenderer {
             return;
         }
 
-        double minDepth = projectedSegments.getFirst().depth();
-        double maxDepth = projectedSegments.getFirst().depth();
+        double minDepth = projectedSegments.getFirst().startDepth();
+        double maxDepth = projectedSegments.getFirst().startDepth();
         for (Segment2D segment : projectedSegments) {
-            minDepth = Math.min(minDepth, segment.depth());
-            maxDepth = Math.max(maxDepth, segment.depth());
+            minDepth = Math.min(minDepth, Math.min(segment.startDepth(), segment.endDepth()));
+            maxDepth = Math.max(maxDepth, Math.max(segment.startDepth(), segment.endDepth()));
         }
 
-        gc.setLineWidth(1);
+        PixelWriter writer = gc.getPixelWriter();
         for (Segment2D screenSegment : projectedSegments) {
-            double normalizedDepth = normalizeDepth(screenSegment.depth(), minDepth, maxDepth);
-            gc.setStroke(colorService.colorForDepth(normalizedDepth));
-            gc.strokeLine(
-                    screenSegment.start().x(),
-                    screenSegment.start().y(),
-                    screenSegment.end().x(),
-                    screenSegment.end().y()
+            drawLineBresenham(
+                    writer,
+                    (int) Math.round(screenSegment.start().x()),
+                    (int) Math.round(screenSegment.start().y()),
+                    (int) Math.round(screenSegment.end().x()),
+                    (int) Math.round(screenSegment.end().y()),
+                    screenSegment.startDepth(),
+                    screenSegment.endDepth(),
+                    minDepth,
+                    maxDepth,
+                    width,
+                    height
             );
         }
+    }
+
+    private void drawLineBresenham(
+            PixelWriter writer,
+            int x0,
+            int y0,
+            int x1,
+            int y1,
+            double startDepth,
+            double endDepth,
+            double minDepth,
+            double maxDepth,
+            double width,
+            double height
+    ) {
+        int x = x0;
+        int y = y0;
+
+        int dx = x1 - x;
+        int dy = y1 - y;
+
+        int xSign = dx > 0 ? 1 : -1;
+        int ySign = dy > 0 ? 1 : -1;
+
+        if (ySign * dy < xSign * dx) {
+            int err = -xSign*dx;
+            int steps = xSign * dx;
+            for (int i = 0; i < xSign*dx; i++) {
+                x += xSign;
+                err += 2 * dy * ySign;
+                if (err > 0) {
+                    err -= 2 * xSign * dx;
+                    y += ySign;
+                }
+                setPixelColor(writer, x, y, pixelDepth(startDepth, endDepth, i + 1, steps), minDepth, maxDepth, width, height);
+            }
+        } else {
+            int err = -dy * ySign;
+            int steps = dy * ySign;
+            for (int i = 0; i < dy * ySign; i++) {
+                y += ySign;
+                err += 2 * dx * xSign;
+                if (err > 0) {
+                    err -= 2 * dy * ySign;
+                    x += xSign;
+                }
+                setPixelColor(writer, x, y, pixelDepth(startDepth, endDepth, i + 1, steps), minDepth, maxDepth, width, height);
+            }
+        }
+    }
+
+    private double pixelDepth(double startDepth, double endDepth, int step, int steps) {
+        if (steps <= 0) {
+            return startDepth;
+        }
+        double t = (double) step / steps;
+        return startDepth + (endDepth - startDepth) * t;
+    }
+
+    private void setPixelColor(
+            PixelWriter writer,
+            int x,
+            int y,
+            double depth,
+            double minDepth,
+            double maxDepth,
+            double width,
+            double height
+    ) {
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            return;
+        }
+        double normalizedDepth = normalizeDepth(depth, minDepth, maxDepth);
+        writer.setColor(x, y, colorService.colorForDepth(normalizedDepth));
     }
 
     private double normalizeDepth(double depth, double minDepth, double maxDepth) {
