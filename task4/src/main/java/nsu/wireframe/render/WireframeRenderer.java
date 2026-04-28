@@ -242,7 +242,7 @@ public class WireframeRenderer {
         );
 
         if (state.getWireframeModel().isEmpty()) {
-            gc.fillText("Geometry will appear after the TODO construction and projection methods are implemented.", 12, 42);
+            gc.fillText("Geometry will appear after construction and projection methods are implemented.", 12, 42);
         }
     }
 }
