@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 
 public record RgbColor(double r, double g, double b) {
     public static final RgbColor BLACK = new RgbColor(0, 0, 0);
-    public static final RgbColor WHITE = new RgbColor(1, 1, 1);
 
     public static RgbColor from255(double r, double g, double b) {
         return new RgbColor(r / 255.0, g / 255.0, b / 255.0);
@@ -28,10 +27,6 @@ public record RgbColor(double r, double g, double b) {
 
     public int blue255() {
         return to255(b);
-    }
-
-    public RgbColor multiply(double factor) {
-        return new RgbColor(r * factor, g * factor, b * factor);
     }
 
     public RgbColor add(RgbColor other) {

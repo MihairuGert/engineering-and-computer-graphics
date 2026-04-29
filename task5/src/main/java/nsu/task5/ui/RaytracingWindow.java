@@ -23,6 +23,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -70,6 +71,7 @@ public class RaytracingWindow extends BorderPane {
     private Button initButton;
     private Button settingsButton;
     private Button saveImageButton;
+    private StackPane viewPane;
 
     private SceneModel scene = SceneModel.empty();
     private RenderSettings settings = RenderSettings.defaults();
@@ -193,6 +195,7 @@ public class RaytracingWindow extends BorderPane {
         canvas.widthProperty().addListener((observable, oldValue, newValue) -> handleViewportResize());
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> handleViewportResize());
         pane.setOnMouseClicked(event -> pane.requestFocus());
+        viewPane = pane;
         return pane;
     }
 
@@ -214,6 +217,7 @@ public class RaytracingWindow extends BorderPane {
 
     private void configureInput() {
         canvas.setFocusTraversable(true);
+        addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressed);
 
         canvas.setOnMousePressed(event -> {
             if (!canChangeCamera() || event.getButton() != MouseButton.PRIMARY) {
@@ -221,7 +225,7 @@ public class RaytracingWindow extends BorderPane {
             }
             lastMouseX = event.getX();
             lastMouseY = event.getY();
-            canvas.requestFocus();
+            viewPane.requestFocus();
         });
 
         canvas.setOnMouseDragged(event -> {
@@ -253,26 +257,29 @@ public class RaytracingWindow extends BorderPane {
             renderWireframe();
         });
 
-        canvas.setOnKeyPressed(event -> {
-            if (!canChangeCamera()) {
-                return;
-            }
+    }
 
-            double distance = nsu.task5.math.VectorMath.distance(camera.eye(), camera.view());
-            double step = Math.max(0.05, distance * 0.04);
-            if (event.getCode() == KeyCode.LEFT) {
-                camera.pan(-step, 0);
-            } else if (event.getCode() == KeyCode.RIGHT) {
-                camera.pan(step, 0);
-            } else if (event.getCode() == KeyCode.UP) {
-                camera.pan(0, step);
-            } else if (event.getCode() == KeyCode.DOWN) {
-                camera.pan(0, -step);
-            } else {
-                return;
-            }
-            renderWireframe();
-        });
+    private void handleKeyPressed(KeyEvent event) {
+        if (!canChangeCamera()) {
+            return;
+        }
+
+        double distance = nsu.task5.math.VectorMath.distance(camera.eye(), camera.view());
+        double step = Math.max(0.05, distance * 0.04);
+        if (event.getCode() == KeyCode.LEFT) {
+            camera.pan(-step, 0);
+        } else if (event.getCode() == KeyCode.RIGHT) {
+            camera.pan(step, 0);
+        } else if (event.getCode() == KeyCode.UP) {
+            camera.pan(0, step);
+        } else if (event.getCode() == KeyCode.DOWN) {
+            camera.pan(0, -step);
+        } else {
+            return;
+        }
+
+        event.consume();
+        renderWireframe();
     }
 
     private boolean canChangeCamera() {
@@ -403,6 +410,7 @@ public class RaytracingWindow extends BorderPane {
         canvas.setVisible(true);
         imageView.setVisible(false);
         renderWireframe();
+        Platform.runLater(viewPane::requestFocus);
     }
 
     private void startRender() {

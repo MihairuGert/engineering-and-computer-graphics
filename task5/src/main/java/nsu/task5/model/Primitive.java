@@ -6,8 +6,6 @@ import nsu.task5.render.Ray;
 import java.util.Optional;
 
 public interface Primitive {
-    Material material();
-
     BoundingBox boundingBox();
 
     WireframeMesh toWireframeMesh();

@@ -44,6 +44,7 @@ public final class VectorMath {
         return multiply(vector, 1.0 / length);
     }
 
+    // Rodrigues
     public static Point3DModel rotateAroundAxis(Point3DModel vector, Point3DModel axis, double angle) {
         Point3DModel unitAxis = normalize(axis);
         if (length(unitAxis) < EPS) {

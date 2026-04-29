@@ -16,7 +16,7 @@ public class RenderSettings {
         this.backgroundColor = backgroundColor;
         this.gamma = gamma;
         this.depth = clampDepth(depth);
-        this.quality = NORMAL_QUALITY.equalsIgnoreCase(quality) ? NORMAL_QUALITY : NORMAL_QUALITY;
+        this.quality = NORMAL_QUALITY;
     }
 
     public static RenderSettings defaults() {
